@@ -41,7 +41,7 @@ html(lang="es")
 
       div(data-aos="fade-up" style="z-index: 20;").container.mx-auto.px-4.py-12
 
-        h1.text-4xl.my-10.font-extrabold.text-center Iniciar sesión
+        h1.text-4xl.my-10.font-extrabold.text-center.min-w-2xl Iniciar sesión
         //- h2.text-center.text-2xl.font-extrabold= pagina
 
         //- Bloque de Errores (Opcional, pero recomendado visualizar errores generales)
@@ -57,20 +57,21 @@ html(lang="es")
                 form.space-y-5(method="POST" action=`${folder}/auth/login` novalidate)
                     input(type="hidden" name="_csrf" value=csrfToken)
 
-                    //- CAMPO EMAIL
+                    //- CAMPO CODIGO
                     div
-                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="email") Código
+                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="codigo") Código
 
-                        - const errorEmail = errores ? errores.find(e => e.path === 'email' || e.path === 'correo') : null
+                        - const errorCodigo = errores ? errores.find(e => e.path === 'codigo') : null
 
-                        input#email.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
-                            placeholder="Tu codigo de UdG"
-                            type="email"
-                            name="email"
-                            class= errorEmail ? 'border-red-500' : 'border-gray-300'
+                        input#codigo.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            placeholder="Tu codigo de UdG (números)"
+                            type="number"
+                            name="codigo"
+                            inputmode="numeric"
+                            class= errorCodigo ? 'border-red-500' : 'border-gray-300'
                         )
-                        if errorEmail
-                            p.text-red-500.text-xs.mt-1.font-bold= errorEmail.msg
+                        if errorCodigo
+                            p.text-red-500.text-xs.mt-1.font-bold= errorCodigo.msg
 
                     //- CAMPO PASSWORD
                     div

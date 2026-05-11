@@ -1,13 +1,14 @@
 import express from 'express'
 import csrf from 'csurf'
 import cookieParser from 'cookie-parser'
+import session from 'express-session'
+import flash from 'express-flash'
+import passport from 'passport'
 import 'dotenv/config'
-import authRoutes from './routes/authRoutes.js'
-import adminRoutes from './routes/adminRoutes.js'
-import usuarioRoutes from './routes/userRoutes.js'
 import homeRoutes from './routes/homeRoutes.js'
-import extraRoutes from './routes/extraRoutes.js'
+import authRoutes from './routes/authRoutes.js'
 import pool from './config/db.js'
+import './middleware/passport.js'
 // Crear la app
 const app = express()
 
@@ -20,9 +21,29 @@ app.use(express.json());
 
 app.use( cookieParser() )
 
+// Configurar session
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'secretoSuperSeguro2024',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    }
+}))
+
+// Inicializar passport
+app.use(passport.initialize())
+app.use(passport.session())
+
+// Habilitar flash messages
+app.use(flash())
+
 app.use((req, res, next) => {
     // res.locals hace que la variable esté disponible en TODAS las vistas automáticamente
     res.locals.folder = process.env.FOLDER || '';
+    res.locals.user = req.user || null;
     next();
 });
 
@@ -52,10 +73,7 @@ app.use( express.static('public'))
 
 // Reuting
 app.use(`/auth`, authRoutes)
-app.use(`/admin`, adminRoutes)
-app.use(`/user`, usuarioRoutes)
 app.use(`/`, homeRoutes)
-app.use('/info', extraRoutes)
 // Definir un puesto y arranca el proyecto
 if (process.env.NODE_ENV === 'production') {
     import("./cron/scheduler.js")
@@ -66,7 +84,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 console.log("Servidor iniciado...");
-const port = process.env.PORT || 3200;
+const port = process.env.PORT || 3400;
 const backendUrl = process.env.BACKEND_URL || 'http://localhost';
 
 app.listen(port, ()=> {

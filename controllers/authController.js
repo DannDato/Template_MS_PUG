@@ -1,33 +1,64 @@
-import { check, validationResult } from 'express-validator'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken';
-import pool from '../config/db.js'
-import { generarJWT,generarId } from '../helpers/tokens.js';
+import { generarJWT } from '../helpers/tokens.js';
 
 class authController {
 
     formularioLogin = (req, res) => {
+        const flashErrors = req.flash('error') || [];
+        const flashMessages = req.flash('message') || [];
+
+        const errores = flashErrors.map((err) => {
+            if (typeof err === 'string') {
+                return { msg: err };
+            }
+            return err;
+        });
+
         res.render('auth/login',{
             pagina: 'Iniciar Sesión',
             csrfToken : req.csrfToken(),
+            errores,
+            messages: flashMessages
         });
     }
+    
     autenticar = async (req, res) => {
-        const folder = process.env.FOLDER || '';
-        await check('email').isEmail().withMessage('El email es obligatorio').run(req)
-        await check('password').notEmpty().withMessage('El password es obligatorio').run(req)
-        let resultado = validationResult(req)
-
-        if(!resultado.isEmpty()){
-            return res.render('auth/login',{
-                pagina: 'Iniciar sesión ',
-                csrfToken : req.csrfToken(),
-                errores: resultado.array(),
-            })
+        try {
+            // Si llegamos aquí, passport ya autenticó al usuario
+            // req.user contiene los datos del usuario autenticado
+            
+            const usuarioId = req.user.userid || req.user.codigo;
+            console.log('Usuario autenticado:', usuarioId);
+            
+            // Guardar en sesión
+            req.session.usuarioId = usuarioId;
+            
+            // Generar token JWT opcional
+            generarJWT(usuarioId);
+            
+            // Redirigir a home
+            res.redirect('/');
+            
+        } catch (error) {
+            console.error('Error en autenticación:', error.message);
+            res.render('auth/login', {
+                pagina: 'Iniciar Sesión',
+                csrfToken: req.csrfToken(),
+                errores: [{ msg: 'Error en el proceso de autenticación' }]
+            });
         }
+    }
 
-        return res.send('Autenticando...')
+    cerrarSesion = (req, res, next) => {
+        req.logout((error) => {
+            if (error) {
+                return next(error);
+            }
 
+            req.session.destroy(() => {
+                res.clearCookie('connect.sid');
+                res.redirect('/auth/login');
+            });
+        });
     }
 
 }
