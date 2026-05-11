@@ -1,0 +1,510 @@
+extends ../layouts/includes/index
+block vars
+    - var stepActivo = 'info';
+    - var avisoFirmado = avisoFirmado || null;
+    - var folder = folder || ''
+    - var extraId = infoExtra ? infoExtra.id : null
+block contenido
+    link(rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css")
+    //- Encabezado
+    div
+        div.text-center
+            h1(style="font-family: 'Montserrat', sans-serif; color: var(--text); font-weight: 800; font-size: 2rem;") Información adicional
+            p.mt-2(style="font-family: 'Merriweather', serif; color: #64748b; font-size: 1rem;") 
+                | Solicitamos la siguiente información para definir tu proceso en los siguientes pasos.
+                br
+                | Para subir tus documentos probatorios primero guarda tu información y despues haz clic en "subir"
+                br
+                br
+                |Una vez que termines haz click en el paso 2 o en la flecha para continuar con el proceso de registro.
+    div.flex.items-center.justify-center.bg-gray-50.py-12.px-4
+        .max-w-xl.w-full.bg-white.shadow-lg.rounded-xl.p-8
+            //- FORMULARIO
+            form(
+                    method="POST"
+                    action=`${folder}/info/extra-info`
+                    class="space-y-6"
+                    
+                )
+                input(type="hidden" name="_csrf" value=csrfToken)
+                - const errorLugar = errores ? errores.find(e => e.path === 'lugar' || e.path === 'lugar') : null
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="lugar")
+                        | Lugar de origen
+                    input#lugar.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        name="lugar"
+                        class= errorLugar ? 'border-red-500' : 'border-gray-300'
+                        required
+                        value = infoExtra ? infoExtra.lugar : ''
+                        placeholder="Ciudad / País"
+                    )
+                    if errorLugar
+                        p.text-red-500.text-xs.mt-1.font-bold= errorLugar.msg
+                //- Edad
+                - const errorEdad = errores ? errores.find(e => e.path === 'edad' || e.path === 'edad') : null
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="edad")
+                        | Edad
+                    input#edad.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        name="edad"
+                        class= errorEdad ? 'border-red-500' : 'border-gray-300'
+                        required
+                        value = infoExtra ? infoExtra.edad : ''
+                        placeholder="Ej. 25"
+                    )
+                    if errorEdad
+                        p.text-red-500.text-xs.mt-1.font-bold= errorEdad.msg
+                //- Numero de telefono
+                - const errorTelefono = errores ? errores.find(e => e.path === 'telefono' || e.path === 'telefono') : null
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="telefono")
+                        | Télefono
+                    input#edad.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        value = infoExtra ? infoExtra.telefono : ''
+                        name="telefono"
+                        class= errorTelefono ? 'border-red-500' : 'border-gray-300'
+                        required
+                        placeholder="Ej. 333 123 4567"
+                        
+                    )
+                    if errorTelefono
+                        p.text-red-500.text-xs.mt-1.font-bold= errorTelefono.msg
+                //- Contacto de emergencia
+                - const errorEmergencia = errores ? errores.find(e => e.path === 'emergencia' || e.path === 'emergencia') : null
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="emergencia")
+                        | Contacto de emergencia
+                    input#contacto_emergencia.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        value = infoExtra ? infoExtra.emergencia : ''
+                        name="emergencia"
+                        class= errorEmergencia ? 'border-red-500' : 'border-gray-300'
+                        required
+                        placeholder="Nombre y teléfono"
+                    )
+                    if errorEmergencia
+                        p.text-red-500.text-xs.mt-1.font-bold= errorEmergencia.msg
+                //- Sexo
+                - const errorSexo = errores ? errores.find(e => e.path === 'sexo' || e.path === 'sexo') : null
+                div
+                    .form-group
+                        label(for="sexo") Sexo
+                        select#sexo.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="sexo"
+                            required
+                            class= errorSexo ? 'border-red-500' : 'border-gray-300'
+                        )
+                            option(value="") Selecciona una opción
+                            option(
+                                value="Masculino"
+                                selected=infoExtra && infoExtra.sexo === "Masculino"
+                            ) Masculino
+                            option(
+                                value="Femenino"
+                                selected=infoExtra && infoExtra.sexo === "Femenino"
+                            ) Femenino
+                            option(
+                                value="Otro"
+                                selected=infoExtra && infoExtra.sexo === "Otro"
+                            ) Prefiero no decirlo
+                //- Ocupación
+                div
+                    .form-group
+                        label(for="ocupacion") Ocupación
+                        p.text-xs.text-gray-500.mt-1.italic * La información registrada deberá ser veraz y corresponder a la modalidad real de participación. En caso de detectar datos falsos o inconsistentes, el registro será cancelado y el pago no será reembolsable, aun cuando el sistema no lo identifique de manera inmediata.
+                        select#ocupacion.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="ocupacion_id"
+                            required
+                            disabled=GenerefeBool
+                        )
+                            option(value="") Selecciona una ocupación
+                            each ocupacion in ocupaciones
+                                option(
+                                    value=ocupacion.id
+                                    data-ocupacion=ocupacion.nombre
+                                    selected=infoExtra && infoExtra.ocupacion_id == ocupacion.id
+                                )= ocupacion.nombre
+                
+                //- Universidad
+                div
+                    .form-group
+                        label(for="universidad") Universidad o Actividad
+                        select#universidad.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="universidad_id"
+                            required
+                            disabled=GenerefeBool
+                        )
+                            option(value="") Selecciona tu universidad
+                            each universidad in universidades
+                                option(
+                                    value=universidad.id
+                                    data-descuento=universidad.descuento
+                                    data-afiliado=universidad.afiliado
+                                    selected=infoExtra && infoExtra.universidadId == universidad.id
+                                )= universidad.nombre
+                
+                p#descuento-info.text-sm.text-green-600.hidden
+                
+                div
+                    .form-group
+                        label(for="carrera") Carrera
+                        select#carrera.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="carrera_id"
+                            required
+                            disabled=GenerefeBool
+                        )
+                            option(value="") Selecciona tu carrera
+                            each carrera in carreras
+                                option(
+                                    value=carrera.id
+                                    selected=infoExtra && infoExtra.carrera_id == carrera.id
+                                )= carrera.nombre
+                - const errorOtraUniversidad = errores ? errores.find(e => e.path === 'otra_universidad' || e.path === 'otra_universidad') : null
+                div#otra-universidad-container.hidden
+                    label.block.text-sm.font-medium.text-gray-700(for="otra_universidad")
+                        | Especifica tu universidad
+                    input#otra_universidad.w-full.px-3.py-3.border.rounded-md(
+                        type="text"
+                        name="otra_universidad"
+                        value= infoExtra ? infoExtra.otra_universidad : ''
+                        class= errorOtraUniversidad ? 'border-red-500' : 'border-gray-300'
+                        placeholder="Nombre de la universidad"
+                        disabled
+                    )
+                if errorOtraUniversidad
+                        p.text-red-500.text-xs.mt-1.font-bold= errorOtraUniversidad.msg
+                - const errorOtraCarrera = errores ? errores.find(e => e.path === 'otra_carrera' || e.path === 'otra_carrera') : null
+                div#otra-carrera-container.hidden
+                    label.block.text-sm.font-medium.text-gray-700(for="otra_carrera")
+                        | Especifica tu Carrera
+                    input#otra_carrera.w-full.px-3.py-3.border.rounded-md(
+                        type="text"
+                        name="otra_carrera"
+                        value= infoExtra ? infoExtra.otra_carrera : ''
+                        class= errorOtraCarrera ? 'border-red-500' : 'border-gray-300'
+                        placeholder="Nombre de la carrera"
+                    
+                    )
+                if errorOtraCarrera
+                        p.text-red-500.text-xs.mt-1.font-bold= errorOtraCarrera.msg
+                //- Botón
+                //- div.pt-4
+                //-     button(
+                //-         type="submit"
+                //-         class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-transform duration-200 transform hover:scale-105 flex justify-center items-center gap-2"
+                //-     )
+                //-         | Guardar 
+                p.text-xs.text-gray-500.mt-1.italic *
+                    | Es necesario subir documentos oficiales que acrediten tu 
+                    strong ocupación 
+                    |  y la 
+                    strong universidad 
+                    |  a la que perteneces. Estos archivos serán utilizados únicamente para fines de validación.
+
+
+                div.p-4.bg-gray-50.border-t.border-gray-100.no-print
+                    div.grid.grid-cols-2.gap-3
+                        
+                        button(
+                            type="submit"
+                            class="w-full bg-green hover:bg-green-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-transform duration-200 transform hover:scale-105 flex justify-center items-center gap-2"
+                        )
+                            | Guardar 
+                        
+                            button(type="button" disabled=!extraId onclick=`abrirModal('${extraId}')` class=`w-full bg-blue text-white font-bold py-3 px-2 rounded-xl shadow transition-transform hover:scale-105 text-sm flex justify-center items-center gap-2`
+                                        class= !extraId ? 'cursor-not-allowed opacity-50' : ''
+                                    )
+                                    i.fas.fa-upload
+                                    span Subir
+        if extraId
+            div(id=`modal-${extraId}` class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true")
+                div.flex.items-end.justify-center.min-h-screen.pt-4.px-4.pb-20.text-center(class="sm:block sm:p-0")
+                    div(class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick=`cerrarModal('modal-${extraId}')`)
+                    span(class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true") &#8203;
+                    
+                    div(class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full")
+                        div.bg-white.px-4.pt-5.pb-4(class="sm:p-6 sm:pb-4")
+                            div(class="sm:flex sm:items-start")
+                                div(class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full")
+                                    h3.text-lg.leading-6.font-medium.text-gray-900#modal-title 
+                                    div.mt-2
+                                        h3#modal-title.text-xl.font-semibold.text-gray-900.flex.items-center.gap-2
+                                            svg.w-6.h-6.text-blue-600(fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24")
+                                                path(stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 0l-3 3m3-3l3 3M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2")
+                                            | Subir documentos
+
+                                        div.mt-3
+                                            p.text-sm.text-gray-600.mb-5
+                                                | Por favor sube una foto clara o un archivo 
+                                                span.font-medium PDF
+                                                |  de un documento que acredite la informacion proporcionada de universidad y ocupacion.
+
+                                        if archivos && archivos.length
+                                            div.mt-4.bg-gray-50.border.border-gray-200.rounded-xl.p-5.shadow-sm
+                                                h4.text-sm.font-semibold.text-gray-700.mb-3.flex.items-center.gap-2
+                                                    svg.w-5.h-5.text-green-600(fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24")
+                                                        path(stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4")
+                                                    | Comprobantes cargados
+
+                                                ul.space-y-3
+                                                    each archivo in archivos
+                                                        li(class="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 hover:shadow transition")
+                                                            div.flex.items-center.gap-3
+                                                                svg.w-5.h-5.text-blue-500(fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24")
+                                                                    path(stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z")
+                                                                span.text-sm.text-gray-700.font-medium= archivo.descripcion
+
+                                                            a(
+                                                                href=`${folder}/uploads/probatorios/${archivo.descripcion}`
+                                                                target="_blank"
+                                                                class="inline-flex items-center gap-1 text-sm font-semibold txt-blue hover:text-blue-800"
+                                                            )
+                                                                | Ver
+                                                                svg.w-4.h-4(fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24")
+                                                                    path(stroke-linecap="round" stroke-linejoin="round" d="M14 3h7v7m0-7L10 14")
+                                                            form(
+                                                                method="POST"                                                                
+                                                                action=`${folder}/user/archivos/eliminar/${archivo.id}`
+                                                                class="inline-block form-eliminar"
+                                                            )
+                                                                input(type="hidden" name="_csrf" value=csrfToken)
+
+                                                                button(
+                                                                    type="submit"
+                                                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-semibold txt-wrong border border-red-200 hover:bg-red-50 hover:border-red-300 transition"
+                                                                )
+                                                                    svg.w-4.h-4(fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24")
+                                                                        path(
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"
+                                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"
+                                                                        )
+                                                                    | Eliminar
+                                                                                                                            
+
+                                                            //- button(
+                                                            //-     type="button"
+                                                            //-     data-id=archivo.id
+                                                            //-     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-semibold txt-wrong border border-red-200 hover:bg-red-50 hover:border-red-300 transition focus:outline-none focus:ring-2 focus:ring-red-300"
+                                                            //-     onclick=`confirmarEliminar(${archivo.id})`
+                                                            //- )
+                                                            //-     svg.w-4.h-4(fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24")
+                                                            //-         path(stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4")
+                                                            //-     | Eliminar
+
+                                        else
+                                            div.mt-6.flex.flex-col.items-center.text-center.text-gray-400
+                                                svg.w-12.h-12.mb-3(fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24")
+                                                    path(stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m4-4H8")
+                                                p.text-sm.font-medium No hay archivos cargados aún
+                                                p.text-xs.mt-1 Sube tu comprobante para continuar
+
+
+                                        br
+                                        form.dropzone.dz-clickable.border-2.border-dashed.border-blue-300.rounded-lg.bg-blue-50(action="/" id=`dropzone-${extraId}` style="min-height: 150px;")
+                                            div.dz-message(data-dz-message)
+                                                span.text-warning.font-bold Arrastra tu archivo aquí
+                                                br
+                                                span.text-xs.text-gray-400 (O haz clic para seleccionar)
+
+                        div.bg-gray-50.px-4.py-3(class="sm:px-6 sm:flex sm:flex-row-reverse gap-2")
+                            button(type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green text-base font-medium text-white  focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" onclick=`procesarSubida('${extraId}')`)
+                                | Enviar documentos probatorios
+                            button(type="button" class="mt-3 w-full inline-flex justify-center rounded-md border bg-wrong shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700  focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick=`cerrarModal('${extraId}')`)
+                                | Cancelar
+    script(src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js")
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+    script.
+        AOS.init();
+        const token = "#{csrfToken}"; 
+        const folder = "#{folder}";
+        Dropzone.autoDiscover = false;
+        const dropzones = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('.dropzone');
+            
+            forms.forEach(form => {
+                const id = form.id.split('-')[1]; 
+                
+                dropzones[id] = new Dropzone(`#${form.id}`, {
+                    url: `${folder}/user/subirArchivoInfo/${id}`,
+                    headers: {
+                        'CSRF-Token': token
+                    },
+                    autoProcessQueue: false,
+                    maxFiles: 5,
+                    acceptedFiles: "image/*,application/pdf",
+                    addRemoveLinks: true,
+                    dictDefaultMessage: "Arrastra tu archivo aquí",
+                    dictRemoveFile: "Quitar archivo",
+                    dictMaxFilesExceeded: "Solo puedes subir un archivo a la vez"
+                });
+
+                dropzones[id].on("sending", function(file, xhr, formData) {
+                    formData.append("_csrf", token);
+                    formData.append("id_cobro", id);
+                });
+
+                dropzones[id].on("success", function(file, response) {
+                    Swal.fire('¡Éxito!', 'Comprobante subido correctamente', 'success').then(() => {
+                        window.location.reload();
+                    });
+                });
+
+                dropzones[id].on("error", function(file, errorMessage) {
+                    let mensaje = 'Hubo un problema al subir el archivo';
+                    if (typeof errorMessage === 'object' && errorMessage.error) {
+                        mensaje = errorMessage.error;
+                    } else if (typeof errorMessage === 'string') {
+                        mensaje = errorMessage;
+                    }
+                    console.error(errorMessage);
+                    Swal.fire('Error', mensaje, 'error');
+                });
+            });
+        });
+        window.procesarSubida = function(id) {
+            const dz = dropzones[id];
+            
+            if (!dz || dz.getQueuedFiles().length === 0) {
+                Swal.fire('Atención', 'Debes seleccionar un archivo primero', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                html: "Verifica que el comprobante sea el correcto,<b> después de subirlo no podrás hacer cambios.</b>",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, enviar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    //console.log("Procesando subida para extraId:", result);
+                    console.log("CONFIRMADO, enviando...");
+                    dz.processQueue();
+                    //- window.cerrarModal(`modal-${id}`);
+                }
+            });
+            dz.on("sending", function () {
+                console.log("📤 Enviando archivo...");
+            });
+
+            dz.on("success", function (file, response) {
+                console.log("✅ SUCCESS:", response);
+                if (response.ok && response.redirect) {
+                    window.location.href = response.redirect;
+                }
+            });
+
+            dz.on("error", function (file, error) {
+                console.error("❌ ERROR:", error);
+            });
+
+            dz.on("complete", function () {
+                console.log("📦 COMPLETE");
+            });
+        }
+        const universidadSelect = document.getElementById('universidad');
+        const ocupacionSelect = document.getElementById('ocupacion');
+        const descuentoInfo = document.getElementById('descuento-info');
+        const otraUniversidadContainer = document.getElementById('otra-universidad-container');
+        const otraUniversidadInput = document.getElementById('otra_universidad');
+        //- Otra carrera 
+        const carreraSelect = document.getElementById('carrera');
+        const otraCarreraContainer = document.getElementById('otra-carrera-container');
+        const otraCarreraInput = document.getElementById('otra_carrera');
+        
+        function updateDescuentoInfo() {
+            const option = universidadSelect.options[universidadSelect.selectedIndex];
+            const option2 = ocupacionSelect.options[ocupacionSelect.selectedIndex];
+            const descuento = option.dataset.descuento;
+            //const ocupacion = data-ocupacion
+            const afiliado = option.dataset.afiliado;
+            const ocupacionText = option2.text;
+        
+            if (afiliado === 'si' && (ocupacionText === 'Estudiante' || ocupacionText === 'Docente')) {
+                descuentoInfo.textContent = `Costo preferencial afiliado a la AMMFEN`;
+                descuentoInfo.classList.remove('hidden');
+            } else {
+                descuentoInfo.classList.add('hidden');
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.form-eliminar').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        title: '¿Eliminar archivo?',
+                        text: 'Esta acción no se puede deshacer',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit(); 
+                        }
+                    });
+                });
+            });
+        });
+        
+        function toggleOtraUniversidad() {
+            const universidadId = universidadSelect.value;
+
+            if (universidadId === '51') {
+                // Mostrar y habilitar
+                otraUniversidadContainer.classList.remove('hidden');
+                otraUniversidadInput.disabled = false;
+                otraUniversidadInput.required = true;
+            } else {
+                // Ocultar y deshabilitar
+                otraUniversidadContainer.classList.add('hidden');
+                otraUniversidadInput.disabled = true;
+                otraUniversidadInput.required = false;
+                otraUniversidadInput.value = '';
+            }
+        }
+        function toggleOtraCarrera() {
+            const CarreraId = carreraSelect.value;
+
+            if (CarreraId === '1') {
+                // Mostrar y habilitar
+                otraCarreraContainer.classList.remove('hidden');
+                otraCarreraInput.disabled = false;
+                otraCarreraInput.required = true;
+            } else {
+                // Ocultar y deshabilitar
+                otraCarreraContainer.classList.add('hidden');
+                otraCarreraInput.disabled = true;
+                otraCarreraInput.required = false;
+                otraCarreraInput.value = '';
+            }
+        }
+        window.abrirModal = function(id) {
+            const modal = document.getElementById(`modal-${id}`);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        window.cerrarModal = function(id) {
+            const modal = document.getElementById(`modal-${id}`);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        toggleOtraUniversidad();
+        carreraSelect.addEventListener('change', toggleOtraCarrera);
+        toggleOtraCarrera();
+        universidadSelect.addEventListener('change', () => {toggleOtraUniversidad(); updateDescuentoInfo();});
+        ocupacionSelect.addEventListener('change', () => {updateDescuentoInfo();});

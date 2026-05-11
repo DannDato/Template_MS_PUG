@@ -1,0 +1,93 @@
+extends ../layouts/includes/index
+
+block vars
+    - var stepActivo = 'perfil' 
+    - var avisoFirmado = avisoFirmado || null;
+    - var folder = folder || ''
+block contenido
+    - var u = Array.isArray(usuario) ? usuario[0] : usuario
+
+    div.max-w-5xl.mx-auto.mt-12.px-4
+
+        div(class="flex flex-col md:flex-row items-center md:items-start gap-10 animate-fade-in-down")
+            
+            div.flex-shrink-0
+                div(class="h-48 w-48 rounded-full border-4 flex items-center justify-center shadow-md bg-[var(--white)]" style="border-color: var(--banner);")
+                    i.fas.fa-user.text-8xl(style="color: var(--primary);")
+            
+            div(class="flex-grow text-center md:text-left pt-4")
+                
+                h1.text-4xl.font-extrabold.mb-2(style="color: var(--dark);") #{u.nombre}
+                
+                div.space-y-2.mb-6
+                    p.text-lg.font-medium(style="color: var(--secondary);") #{u.email}
+                    
+                    div.flex.flex-col.gap-1
+                        
+                        span.text-sm(style="color: var(--text);")
+                            i.fas.fa-university.mr-2(style="color: var(--accent);")
+                            | #{u.universidad}
+
+                    div.mt-3.flex.flex-wrap.gap-2.justify-center(class="md:justify-start")
+                        span(class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide" style="background-color: var(--banner); color: var(--text);")
+                            | #{u.ocupacion}
+                        if u.costo
+                            span(class="px-3 py-1 text-xs font-bold rounded-full text-white" style="background-color: var(--secondary);")
+                                | $#{parseFloat(u.costo).toLocaleString('es-MX')} MXN
+
+                div(class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start")
+                    
+                    form(action=`${folder}/auth/cerrar-sesion` method="GET")
+                        if csrfToken
+                            input(type="hidden" name="_csrf" value=csrfToken)
+                        button(type="submit" class="px-6 py-2 border-2 font-bold rounded-xl transition-all duration-300 flex items-center gap-2 hover:text-white" style="border-color: var(--wrong); color: var(--wrong);" onmouseover="this.style.backgroundColor='var(--wrong)'; this.style.color='white'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--wrong)'")
+                            i.fas.fa-sign-out-alt
+                            | Cerrar Sesión
+                        
+                    a(href=`${folder}/auth/olvide-password` class="px-6 py-2 border-2 font-bold rounded-xl transition-all duration-300 flex items-center gap-2 hover:text-white" style="border-color: var(--primary); color: var(--primary);" onmouseover="this.style.backgroundColor='var(--primary)'; this.style.color='white'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--primary)'")
+                        i.fas.fa-key
+                        | Cambiar Contraseña
+                    
+        hr.my-12(style="border-color: var(--banner);")
+
+        div(class="max-w-5xl mx-auto")
+            
+            h2.text-3xl.font-light.mb-8.text-center(style="color: var(--text);") Mis Talleres
+
+            if talleres && talleres.length > 0
+                div(class="grid grid-cols-1 md:grid-cols-2 gap-10 mx-5")
+                    each taller in talleres
+                        div.rounded-2xl.shadow-lg.p-6.border.relative.overflow-hidden.transition-transform.hover.scale-105.duration-300(style="background-color: var(--surface); border-color: var(--banner);")
+
+                            div.absolute.top-0.left-0.w-full.h-1(style="background: linear-gradient(to right, var(--primary), var(--secondary));")
+                            
+                            div.flex.justify-between.items-start
+                                h3.font-bold.text-lg.mb-2.leading-tight(style="color: var(--dark);")= taller.nombre
+                            
+                            p.text-xs.mb-4.leading-relaxed.h-10.overflow-hidden(style="color: var(--text); opacity: 0.8;")= taller.descripcion
+
+                            div.space-y-2.pt-4(style="border-top: 1px solid var(--banner);")
+
+                                div.flex.items-center.text-sm(style="color: var(--text);")
+                                    i.far.fa-calendar-alt.w-6.text-center(style="color: var(--accent);")
+                                    - const fecha = new Date(taller.fecha_hora)
+                                    span.capitalize= fecha.toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long'}) + ' ' + fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'}) + ' hrs'
+                                
+                                if taller.tallerista_nombre
+                                    div.flex.items-center.text-sm(style="color: var(--text);")
+                                        i.fas.fa-user-tie.w-6.text-center(style="color: var(--primary);")
+                                        span= taller.tallerista_nombre
+                                
+                                div.flex.items-center.text-sm(style="color: var(--text);")
+                                    i.far.fa-clock.w-6.text-center(style="color: var(--secondary);")
+                                    span Duración: #{taller.duracion} hrs
+
+            else
+                div.rounded-xl.p-10.text-center.border.border-dashed(style="background-color: var(--banner); border-color: var(--primary);")
+                    i.fas.fa-chalkboard.text-4xl.mb-3(style="color: var(--primary); opacity: 0.5;")
+                    p(style="color: var(--text);") No tienes talleres inscritos por el momento.
+
+
+
+            div.text-center.mt-5.pt-10.pb-3
+                a.text-gray-600.text-xs.hover_text-indigo-500(href=`${folder}/user/aviso`) Ver aviso de privacidad

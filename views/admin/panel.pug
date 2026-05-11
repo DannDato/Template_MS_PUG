@@ -1,0 +1,531 @@
+extends ../layouts/includes/index
+
+block vars
+    - var folder = folder || ''
+    - var stepActivo = "panel"
+
+block styles
+    style.
+        @media (max-width: 1100px) {
+            .no-mobile { 
+                display: none !important; 
+            }
+            .box-mobile {
+                display: flex !important;
+                flex-wrap: wrap;
+                justify-content: center; 
+                gap: 1rem !important;
+            }
+            .on-mobile { 
+                width: 100%;   
+                max-width: 140px;
+                padding: 1rem;  
+                justify-content: center;
+            }
+        }
+
+block contenido
+    script(src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js")
+
+    div(data-aos="fade-up")
+        div.mb-6.text-center.md_text-left
+            h2.text-2xl.font-bold.mb-2(style="color: var(--text); font-family: 'Montserrat', sans-serif;") 
+                i.fas.fa-desktop.mr-2
+                | Dashboard
+            p.text-gray-500 Esta es la vista principal donde gestionar todos los registros de usuarios, pagos y estatus.
+        div.box-mobile(class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12")
+
+            //- USUARIOS
+            div.bg-white.p-6.on-mobile.flex.items-center.shadow-lg.cursor-pointer.transition-transform.transform(
+                onclick="filtrarTabla('todos')"
+                class="hover_scale-105"
+                data-aos="zoom-in" 
+                data-aos-delay="100" 
+                style="border-radius: 0 40px 0 40px; border-bottom: 4px solid var(--primary);"
+            )
+                div.p-4.rounded-full.mr-4.flex.items-center.justify-center(style="background-color: var(--banner); color: var(--primary); width: 60px; height: 60px;")
+                    i.fas.fa-users.text-2xl
+                div
+                    p.text-sm.font-bold.no-mobile(style="font-family: 'Montserrat', sans-serif; color: #64748b; text-transform: uppercase; letter-spacing: 1px;") Total de usuarios
+                    p.text-3xl.font-bold(style="font-family: 'Montserrat', sans-serif; color: var(--text);") #{resumen.usuarios}
+            
+            //- Mensajes
+            div.bg-white.p-6.on-mobile.flex.items-center.shadow-lg.cursor-pointer.transition-transform.transform(
+                onclick="filtrarTabla('mensajes')"
+                class="hover_scale-105"
+                data-aos="zoom-in" 
+                data-aos-delay="100" 
+                style="border-radius: 0 40px 0 40px; border-bottom: 4px solid gray;"
+            )
+                div.p-4.rounded-full.mr-4.flex.items-center.justify-center(style="background-color: #c0c0c0; color: white; width: 60px; height: 60px;")
+                    i.fas.fa-comments.text-2xl
+                div
+                    p.text-sm.font-bold.no-mobile(style="font-family: 'Montserrat', sans-serif; color: #64748b; text-transform: uppercase; letter-spacing: 1px;") Mensajes sin leer
+                    p.text-3xl.font-bold(style="font-family: 'Montserrat', sans-serif; color: var(--text);") #{resumen.mensajes}
+
+            //- PAGOS
+            div.bg-white.p-6.on-mobile.flex.items-center.shadow-lg.cursor-pointer.transition-transform.transform(
+                onclick="filtrarTabla('pagado')"
+                class="hover_scale-105"
+                data-aos="zoom-in" 
+                data-aos-delay="100" 
+                style="border-radius: 0 40px 0 40px; border-bottom: 4px solid var(--primary);"
+            )
+                div.p-4.rounded-full.mr-4.flex.items-center.justify-center(style="background-color: var(--banner); color: var(--primary); width: 60px; height: 60px;")
+                    i.fas.fa-file-invoice-dollar.text-2xl
+                div
+                    p.text-sm.font-bold.mb-1.no-mobile(style="font-family: 'Montserrat', sans-serif; color: #64748b; text-transform: uppercase; letter-spacing: 1px;") Total de pagos
+                    div.flex.items-baseline.gap-3
+                        p.text-3xl.font-bold(style="font-family: 'Montserrat', sans-serif; color: var(--text);") #{resumen.inscritos}
+                        p.text-lg.font-bold.text-gray-400.no-mobile(style="font-family: 'Montserrat', sans-serif;") #{resumen.total_recaudado ? '$ ' + Number(resumen.total_recaudado).toLocaleString('es-MX') : '$ 0'} Mxn.
+
+            //- PENDIENTES
+            div.bg-white.p-6.on-mobile.flex.items-center.shadow-lg.cursor-pointer.transition-transform.transform(
+                onclick="filtrarTabla('pendiente')"
+                class="hover_scale-105"
+                data-aos="zoom-in" 
+                data-aos-delay="200" 
+                style="border-radius: 0 40px 0 40px; border-bottom: 4px solid var(--accent);"
+            )
+                div.p-4.rounded-full.mr-4.flex.items-center.justify-center(style="background-color: #fef9c3; color: var(--accent); width: 60px; height: 60px;")
+                    i.fas.fa-clock.text-2xl
+                div
+                    p.text-sm.font-bold.no-mobile(style="font-family: 'Montserrat', sans-serif; color: #64748b; text-transform: uppercase; letter-spacing: 1px;") Pendientes de validar
+                    p.text-3xl.font-bold(style="font-family: 'Montserrat', sans-serif; color: var(--text);") #{resumen.pagos_pendientes}
+
+            //- CARD 4: VALIDADOS
+            div.bg-white.p-6.on-mobile.flex.items-center.shadow-lg.cursor-pointer.transition-transform.transform(
+                onclick="filtrarTabla('validado')"
+                class="hover_scale-105"
+                data-aos="zoom-in" 
+                data-aos-delay="300" 
+                style="border-radius: 0 40px 0 40px; border-bottom: 4px solid var(--secondary);"
+            )
+                div.p-4.rounded-full.mr-4.flex.items-center.justify-center(style="background-color: #dcfce7; color: var(--secondary); width: 60px; height: 60px;")
+                    i.fas.fa-check-circle.text-2xl
+                div
+                    p.text-sm.font-bold.no-mobile(style="font-family: 'Montserrat', sans-serif; color: #64748b; text-transform: uppercase; letter-spacing: 1px;") Validados
+                    p.text-3xl.font-bold(style="font-family: 'Montserrat', sans-serif; color: var(--text);") #{resumen.pagos_confirmados}
+
+
+
+        
+        div.bg-white.rounded-2xl.shadow-lg.overflow-hidden.border.border-gray-100
+            div.px-6.py-5.border-b.border-gray-200.flex.flex-col.md_flex-row.items-center.justify-between.gap-4
+                    div.px-6.py-6(style="width:500px; max-width: 100%;")
+                        div.flex.flex-col.items-center.justify-center.gap-4.w-full
+                            div.flex.items-center.gap-3
+                                div.bg-gray-100.txt-blue.p-2.rounded-lg
+                                    i.fas.fa-users
+                                h3#titulo-taller-actual.text-lg.font-bold.text-gray-800 Registros
+                            
+                            div.relative.w-full.max-w-md
+                                span.absolute.inset-y-0.left-0.flex.items-center.pl-3.text-gray-500
+                                    i.fas.fa-search
+                                input#buscador.pl-10.pr-4.py-2.border.border-gray-300.rounded-full.text-sm.w-full.focus_outline-none.focus_border-primary(
+                                    type="text" 
+                                    placeholder="Buscar..." 
+                                    onkeyup="filtrarYPaginar()"
+                                )
+
+            //- TABLA
+            div.overflow-x-auto
+                table.min-w-full.leading-normal
+                    thead
+                        tr.bg-gray-100
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider
+                                button.bg-green.text-white.px-6.py-2.rounded-lg.font-bold.transition.hover_bg-gray-700.flex.items-center.gap-2(onclick="descargarExcel()" type="button")
+                                    i.fas.fa-download
+                                    span Excel
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Email
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Estatus
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider No. de pago
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Fecha de pago
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Folio
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Correrá
+                            th.px-5.py-4.text-center.text-xs.font-bold.uppercase.tracking-wider.text-gray-500 Chat
+                            th.px-5.py-3.text-left.text-xs.font-bold.text-gray-500.uppercase.tracking-wider Ver
+                    
+                    tbody#tabla-usuarios
+                        tr
+                            td(colspan="4").px-5.py-10.text-center.text-gray-400
+                                i.fas.fa-arrow-up.mb-2.text-2xl
+                                p Por favor selecciona un taller arriba para cargar la lista.
+
+            div.px-5.py-5.bg-white.border-t.flex.flex-col.md_flex-row.items-center.justify-between
+                span.text-xs.xs_text-sm.text-gray-900.mb-4.md_mb-0#info-paginacion
+                    | Mostrando 0 de 0 registros
+                div.flex.items-center.gap-4
+                    button.text-sm.bg-blue.text-white.font-semibold.py-2.px-4.rounded-xl.mr-2(onclick="cambiarPagina('prev')")
+                        | Anterior
+                    button.text-sm.bg-green.text-white.font-semibold.py-2.px-4.rounded-xl(onclick="cambiarPagina('next')")
+                        | Siguiente
+                   
+    div#modal-usuario.fixed.inset-0.bg-black.bg-opacity-50.hidden.flex.items-center.justify-center.z-50
+        div.bg-white.shadow-2xl.w-full.max-w-6xl.h-5_6.flex.flex-col.transform.transition-all(style="border-radius: 20px; overflow: hidden; height: 90vh;")
+            div.bg-gray-100.px-6.py-4.border-b.border-gray-200.flex.justify-between.items-center.flex-shrink-0
+                h3.text-lg.font-bold.text-gray-800 Editar Usuario
+                button.text-gray-500.hover_text-red-500.transition(onclick="cerrarModal()")
+                    i.fas.fa-times.text-xl
+            div.flex-grow.bg-gray-50.relative
+                div#iframe-loader.absolute.inset-0.flex.items-center.justify-center.bg-white.z-0
+                    i.fas.fa-spinner.fa-spin.text-4xl.text-blue
+                iframe#modal-iframe.w-full.h-full.relative.z-10(src="" frameborder="0")
+
+   
+
+    div#modal-usuario-chat-admin.fixed.inset-0.bg-black.bg-opacity-50.hidden.flex.items-center.justify-center.z-50
+        div(
+                class="bg-white shadow-2xl w-full max-w-6xl h-5_6 flex flex-col transform transition-all h-[100vh] md:h-[50vh] lg:h-[50vh]"
+                style="border-radius: 20px; overflow: hidden"
+            )
+            div(
+                class="bg-white shadow-2xl w-full max-w-6xl flex flex-col h-[100vh] md:h-[50vh] lg:h-[50vh]"
+                style="border-radius: 20px; overflow: hidden;"
+            )
+                div.bg-white.px-6.py-4.flex.justify-between.items-center.flex-shrink-0
+                    div
+                        h3.text-lg.font-bold.text-gray-800 Chat con Usuario
+                        p.text-xs.text-gray-800 En línea
+                    button.text-gray-300.hover_text-red-300.transition(onclick="cerrarChatModal()")
+                        i.fas.fa-times.text-xl
+
+                div#chat-messages-admin.flex-grow.bg-gray-100.p-6.overflow-y-auto.space-y-4
+                    div.flex.items-start
+                        div.bg-white.rounded-xl.p-4.shadow.max-w-md
+                            p.text-sm.text-gray-800 Hola 👋 ¿en qué puedo ayudarte?
+
+                    div.flex.items-end.justify-end
+                        div.bg-blue.rounded-xl.p-4.shadow.max-w-md
+                            p.text-sm.text-white Necesito ayuda con mi cuenta
+
+                div.border-t.bg-white.p-4.flex.items-center.gap-3.flex-shrink-0
+                    input(type="hidden" id="csrfToken" value=csrfToken)
+                    input#chat-input(
+                        type="text"
+                        class="w-full border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring"
+                        placeholder="Escribe un mensaje..."
+                    )
+                    button#chat-send-admin(class="bg-blue text-white rounded-full px-5 py-2 hover:bg-blue transition")
+                        i.fas.fa-paper-plane
+
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    
+    script.
+        AOS.init();
+        const folder = "#{folder}";
+        let usuarioChatActivo = null;
+        const todosLosUsuarios = !{JSON.stringify(usuarios || [])};
+        var datosFiltrados = [...todosLosUsuarios]; 
+        var paginaActual = 1;
+        const filasPorPagina = 10;
+        var filtroEstatusActual = 'todos'; 
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarFiltrosGlobales(); 
+        });
+
+        function aplicarFiltrosGlobales() {
+            const input = document.getElementById('buscador');
+            const termino = input.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+            datosFiltrados = todosLosUsuarios.filter(usuario => {
+                const nombre = (usuario.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const email = (usuario.email || "").toLowerCase();
+                const uni = (usuario.universidad || "").toLowerCase();
+                const coincideTexto = nombre.includes(termino) || email.includes(termino) || uni.includes(termino);
+
+                let coincideEstatus = false;
+                
+                if (filtroEstatusActual === 'todos') {
+                    coincideEstatus = true;
+                } 
+                else if (filtroEstatusActual === 'pagado') {
+                    coincideEstatus = (usuario.estatus === 'Pagado' || usuario.estatus === 'Validado');
+                } 
+                else if (filtroEstatusActual === 'pendiente') {
+                    coincideEstatus = (usuario.estatus === 'Pagado');
+                } 
+                else if (filtroEstatusActual === 'validado') {
+                    coincideEstatus = (usuario.estatus === 'Validado');
+                }
+                else if (filtroEstatusActual === 'mensajes') {
+                    coincideEstatus = (usuario.mensajes_no_leidos > 0);
+                }
+                return coincideTexto && coincideEstatus;
+            });
+
+            paginaActual = 1;
+            
+            renderizarTabla();
+        }
+
+        function filtrarTabla(criterio) {
+            filtroEstatusActual = criterio;
+            aplicarFiltrosGlobales();
+        }
+
+        function filtrarYPaginar() {
+            aplicarFiltrosGlobales();
+        }
+
+        async function renderizarTabla() {
+            const tbody = document.getElementById('tabla-usuarios');
+            tbody.innerHTML = ''; 
+
+            const inicio = (paginaActual - 1) * filasPorPagina;
+            const fin = inicio + filasPorPagina;
+            const usuariosPagina = datosFiltrados.slice(inicio, fin);
+
+            if (usuariosPagina.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-5 py-5 bg-white text-sm text-center">
+                            <p class="text-gray-500">No se encontraron registros coinciden con la búsqueda.</p>
+                        </td>
+                    </tr>`;
+            } else {
+                usuariosPagina.forEach(usuario => {
+                    let bgColor = '#f3f4f6'; 
+                    let txtColor = '#4b5563';
+                    if (usuario.estatus === 'Validado') { bgColor = '#dcfce7'; txtColor = 'var(--secondary)'; }
+                    else if (usuario.estatus === 'Pagado') { bgColor = '#dbeafe'; txtColor = '#1e40af'; }
+                    else if (usuario.estatus === 'Pendiente de Pago') { bgColor = '#fef9c3'; txtColor = 'var(--accent)'; }
+
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-status', usuario.estatus);
+                    tr.className = "fila-cobro border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors duration-200 select-none";
+                    
+                    tr.onclick = function() { 
+                         document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('bg-gray-100'));
+                         this.classList.add('bg-gray-100');
+                    };
+                    tr.ondblclick = function() { abrirModalUsuario(usuario.id); };
+
+                    tr.innerHTML = `
+                        <td class="px-5 py-5 bg-transparent text-sm">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10">
+                                    <div class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-gray-900 whitespace-no-wrap font-bold">${usuario.nombre}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-5 bg-transparent text-sm"><p class="text-gray-600">${usuario.email}</p></td>
+                        <td class="px-5 py-5 bg-transparent text-sm">
+                            <span class="relative inline-block px-3 py-1 font-semibold leading-tight">
+                                <span class="absolute inset-0 opacity-50 rounded-full" style="background-color: ${bgColor};"></span>
+                                <span class="relative" style="color: ${txtColor}; font-family: 'Montserrat', sans-serif; font-size: 0.75rem;">${usuario.estatus}</span>
+                            </span>
+                        </td>
+                        <td class="px-5 py-5 bg-transparent text-sm"><p class="text-gray-600">${usuario.numero_pago || '<span class="text-xs text-gray-400">---</span>'}</p></td>
+                        <td class="px-5 py-5 bg-transparent text-sm"><p class="text-gray-600">${usuario.fecha_pago || '<span class="text-xs text-gray-400">---</span>'}</p></td>
+                        <td class="px-5 py-5 bg-transparent text-sm"><p class="text-red-600 font-medium">${usuario.folio}</p></td>
+                        <td class="px-5 py-5 bg-transparent text-sm text-center">
+                             <div class="inline-flex items-center justify-center w-9 h-9 rounded-full shadow-sm" style="background-color: ${usuario.corre <= 0  ? '#efefef' : '#92ffb8'}; color: ${usuario.corre > 0 ? '#237468' : '#ffffff'};">
+                                <i class="fas fa-person-running text-sm"></i>
+                            </div>
+                        </td>
+                        <td class="px-5 py-5 bg-transparent text-sm text-center">
+                            <button 
+                                type="button"
+                                onclick="abrirChatUsuario('${usuario.id}')"
+                                class="mensaje relative inline-flex items-center justify-center w-9 h-9 rounded-full shadow transition hover:scale-110
+                                    ${usuario.tiene_chat ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}"
+                                title="Abrir chat"
+                            >
+                                <i class="fas fa-comments text-sm"></i>
+
+                                ${
+                                    usuario.mensajes_no_leidos > 0
+                                    ? `<span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1" id="badge-chat-${usuario.id}">
+                                            ${usuario.mensajes_no_leidos}
+                                    </span>`
+                                    : ''
+                                }
+                            </button>
+                        </td>
+                        <td class="px-5 py-5 bg-transparent text-sm text-center">
+                             <button type="button" onclick="abrirModalUsuario('${usuario.id}')" class="inline-flex items-center justify-center w-9 h-9 rounded-full shadow transition hover:scale-110 bg-sky-100 text-sky-700">
+                                <i class="fas fa-eye text-sm"></i>
+                             </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            const totalRegistros = datosFiltrados.length;
+            const mostrandoInicio = totalRegistros === 0 ? 0 : inicio + 1;
+            const mostrandoFin = Math.min(fin, totalRegistros);
+            document.getElementById('info-paginacion').innerText = `Mostrando ${mostrandoInicio} a ${mostrandoFin} de ${totalRegistros} registros`;
+
+            return true; 
+        }
+
+        function cambiarPagina(direccion) {
+            const totalPaginas = Math.ceil(datosFiltrados.length / filasPorPagina);
+            
+            if (direccion === 'prev' && paginaActual > 1) {
+                paginaActual--;
+                renderizarTabla();
+            } else if (direccion === 'next' && paginaActual < totalPaginas) {
+                paginaActual++;
+                renderizarTabla();
+            }
+        }
+
+        function cargarMensajes(usuarioId) {
+            fetch(`${folder}/admin/api/mensajes/${usuarioId}`)
+                .then(res => res.json())
+                .then(mensajes => {
+                    const contenedor = document.getElementById('chat-messages-admin');
+                    contenedor.innerHTML = '';
+
+                    mensajes.forEach(msg => {
+                        const div = document.createElement('div');
+
+                        if (msg.emisor_rol === 'user') {
+                            div.className = 'flex items-start';
+                            div.innerHTML = `
+                                <div class="bg-white rounded-xl p-4 shadow max-w-md">
+                                    <p class="text-sm text-gray-800">${msg.mensaje}</p>
+                                </div>
+                            `;
+                        } else {
+                            div.className = 'flex items-end justify-end';
+                            div.innerHTML = `
+                                <div class="bg-blue rounded-xl p-4 shadow max-w-md">
+                                    <p class="text-sm text-white">${msg.mensaje}</p>
+                                </div>
+                            `;
+                        }
+
+                        contenedor.appendChild(div);
+                    });
+
+                    contenedor.scrollTop = contenedor.scrollHeight;
+                });
+        } 
+
+
+        function abrirChatUsuario(usuarioId) {
+            usuarioChatActivo = usuarioId; 
+            document.getElementById('modal-usuario-chat-admin')
+                .classList.remove('hidden');
+
+            cargarMensajes(usuarioId);
+            document.getElementById("badge-chat-" + usuarioId)?.remove();   
+        }
+
+        function cerrarChatModal() {
+            document.getElementById('modal-usuario-chat-admin')
+                .classList.add('hidden');
+        }
+
+        (() => {
+            const input = document.getElementById('chat-input');
+            const boton = document.getElementById('chat-send-admin');
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    boton.click();
+                }
+            });
+        })();
+
+
+        document.getElementById('chat-send-admin').addEventListener('click', () => {
+            const texto = document.getElementById('chat-input').value.trim();
+            const csrfToken = document.getElementById('csrfToken').value;
+
+            if (!texto) return;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `${folder}/admin/api/mensajes/${usuarioChatActivo}`, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('CSRF-Token', csrfToken); // 👈 CLAVE
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        const respuesta = JSON.parse(xhr.responseText);
+                        console.log(respuesta);
+
+                        agregarMensaje(respuesta.mensaje.mensaje, 'admin');
+                        document.getElementById('chat-input').value = '';
+                    } else {
+                        console.error('Error enviando mensaje');
+                    }
+                }
+            };
+
+            xhr.send(JSON.stringify({ texto }));
+        });
+
+        function agregarMensaje(texto, rol) {
+            const chat = document.getElementById('chat-messages-admin');
+            const msg = document.createElement('div');
+
+            msg.className = rol === 'admin'
+                ? 'flex justify-end'
+                : 'flex justify-start';
+
+            msg.innerHTML = `
+                <div class="${rol === 'admin' ? 'bg-blue text-white' : 'bg-white'} 
+                    rounded-xl p-3 max-w-md shadow">
+                    ${texto}
+                </div>
+            `;
+
+            chat.appendChild(msg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+
+        function abrirModalUsuario(id) {
+            const modal = document.getElementById('modal-usuario');
+            const iframe = document.getElementById('modal-iframe');
+            const loader = document.getElementById('iframe-loader');
+            loader.classList.remove('hidden');
+            iframe.src = `${folder}/admin/editar/${id}`; 
+            modal.classList.remove('hidden');
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modal-usuario');
+            const iframe = document.getElementById('modal-iframe');
+            modal.classList.add('hidden');
+            setTimeout(() => { iframe.src = ''; }, 300);
+        }
+
+
+        function descargarExcel() {
+            if (!datosFiltrados || datosFiltrados.length === 0) {
+                alert("No hay datos para exportar");
+                return;
+            }
+            var data = [
+                ["Nombre", "Email", "Estatus", "No. Pago", "Fecha de pago", "Carrera"]
+            ];
+            datosFiltrados.forEach(u => {
+                data.push([
+                    u.nombre,
+                    u.email,
+                    u.estatus,
+                    u.numero_pago,
+                    u.fecha_pago,
+                    u.corre
+                ]);
+            });
+
+            var ws = XLSX.utils.aoa_to_sheet(data);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Usuarios_Filtrados");
+            var fecha = new Date().toISOString().slice(0,10);
+            XLSX.writeFile(wb, `Reporte_Usuarios_${fecha}.xlsx`);
+        }

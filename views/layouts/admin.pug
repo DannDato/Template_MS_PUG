@@ -1,0 +1,19 @@
+doctype html
+html(lang="es")
+    head
+        meta(charset="utf-8")
+        meta(hhtp-equiv="X-UA-Compatible", content="IE-edge")
+        meta(name="viewport" ,content="width=device-width, initial-scale=1")
+        title AMMFE | #{pagina}
+       
+
+        link(rel="stylesheet", href=`${folder}/css/app.css`)
+        link(rel="icon" href=`${folder}/img/icon.ico`)
+        block styles 
+
+    body.min-h-screen.bg-gray-50
+        //- include includes/header-admin 
+        main(class="mx-auto conainer mt-10 px-2")
+            block contenido
+
+        block scripts

@@ -1,0 +1,165 @@
+extends ../layouts/includes/index
+block vars
+    - var stepActivo = 'aviso';
+    - var avisoFirmado = avisoFirmado || null;
+    - var folder = folder || ''
+block contenido
+
+    div.mt-8.mx-auto(style="max-width: 750px;")
+        div.text-center
+            h1(style="font-family: 'Montserrat', sans-serif; color: var(--text); font-weight: 800; font-size: 2rem;") Instrucciones de navegación
+            p.mt-2(style="font-family: 'Merriweather', serif; color: #64748b; font-size: 1rem;") 
+                | La barra con pasos es interactiva, te ayudará a navegar por las secciones para completar tu registro. Haz click en cada paso para editar la sección correspondiente.
+            img(src=`${folder}/img/navInfo.png` 
+                alt="Instrucciones de navegación" 
+                class="mx-auto mt-4 rounded-lg "
+                style="max-width: 100%; height: auto;"
+            )
+            br
+            br
+            h1(style="font-family: 'Montserrat', sans-serif; color: var(--text); font-weight: 800; font-size: 2rem;") Para continuar
+            p.mt-2(style="font-family: 'Merriweather', serif; color: #64748b; font-size: 1rem;") 
+                | Es necesario que firmes el aviso de privacidad para poder avanzar al siguiente paso. Si ya lo firmaste, haz click en el botón para guardar y continuar con tu registro.
+            br
+            br
+    div.min-h-screen.flex.items-center.justify-center.bg-gray-50.px-4
+        .max-w-3xl.w-full.bg-white.shadow-lg.rounded-xl.p-8
+
+            .text-center.mb-8
+                h1.text-3xl.font-extrabold.text-gray-800.uppercase
+                    | Aviso de Privacidad
+                
+            .space-y-6.text-gray-700.text-sm.leading-relaxed
+
+                p
+                    | De conformidad con lo establecido en la Ley Federal de Protección de Datos Personales en Posesión de los
+                    | Particulares, Asociación Mexicana de Miembros de Facultades y Escuelas de Nutrición A.C. pone a su disposición
+                    | el siguiente aviso de privacidad.
+
+                p
+                    | Asociación Mexicana de Miembros de Facultades y Escuelas de Nutrición A.C., es responsable del uso y protección
+                    | de sus datos personales, y al respecto le informa lo siguiente:
+
+                h2.text-lg.font-semibold.text-gray-800 Responsable y domicilio
+
+                p
+                    | Asociación Mexicana de Miembros de Facultades y Escuelas de Nutrición A.C., con domicilio en
+                    | Delta 74, Colonia Romero de Terreros, C.P. 04310, Alcaldía de Coyoacán, Ciudad de México.
+
+                h2.text-lg.font-semibold.text-gray-800 Finalidades del tratamiento
+
+                p
+                    | Los datos personales que recabamos de usted serán utilizados para las siguientes finalidades:
+
+                ul.list-disc.pl-6.space-y-2
+                    li Registrar su participación en Congresos, Cursos, Diplomados y Sesiones Académicas.
+                    li Envío de información relacionada con actividades académicas y de interés.
+                    li Administración y control de acceso a servicios digitales.
+
+                h2.text-lg.font-semibold.text-gray-800 Datos personales recabados
+
+                p
+                    | Para llevar a cabo las finalidades descritas, utilizaremos los siguientes datos personales:
+
+                ul.list-disc.pl-6.space-y-2
+                    li Nombre completo
+                    li Teléfono de contacto
+                    li Correo electrónico
+                    li Ciudad y país de origen
+                    li Institución académica o laboral
+                    li Ocupación, profesión y grado máximo de estudios
+
+                h2.text-lg.font-semibold.text-gray-800 Transferencia de datos
+
+                p
+                    | Sus datos personales podrán ser compartidos con:
+
+                p.font-semibold
+                    | Action Move Great Comunicación, S.A. de C.V.
+
+                p
+                    | Únicamente para el manejo y operación de los servicios digitales, registro y control de acceso a las
+                    | actividades académicas de AMMFEN.
+
+                h2.text-lg.font-semibold.text-gray-800 Derechos ARCO
+
+                p
+                    | Usted tiene derecho a Acceder, Rectificar, Cancelar u Oponerse al tratamiento de sus datos personales
+                    | (Derechos ARCO).
+
+                p
+                    | Para ejercer estos derechos deberá enviar una solicitud al correo:
+
+                p.font-semibold.text-blue-600
+                    | contacto@ammfen.mx
+
+                p
+                    | La solicitud deberá contener: nombre completo, teléfono de contacto y correo electrónico.
+                    | La respuesta se dará en un plazo máximo de 20 días hábiles vía correo electrónico.
+
+                h2.text-lg.font-semibold.text-gray-800 Revocación del consentimiento
+
+                p
+                    | Usted puede revocar su consentimiento para el uso de sus datos personales enviando su solicitud al correo:
+
+                p.font-semibold.text-blue-600
+                    | comunicacion@ammfen.mx
+
+                p
+                    | La respuesta se dará a más tardar en 20 días hábiles.
+
+                h2.text-lg.font-semibold.text-gray-800 Cambios al aviso de privacidad
+
+                p
+                    | El presente aviso de privacidad puede sufrir modificaciones. Cualquier cambio podrá ser consultado
+                    | solicitando información al correo:
+
+                p.font-semibold.text-blue-600
+                    | contacto@ammfen.mx
+
+                p.text-xs.text-gray-500.mt-4
+                    | Última actualización: 25/01/2025
+
+            hr.my-8
+
+            form.space-y-6(method="POST" action=`${folder}/user/firmar-aviso`)
+                input(type="hidden" name="_csrf" value=csrfToken)
+                .flex.items-start.gap-3
+                    input#acepto(
+                        type="checkbox" 
+                        required 
+                        class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                        checked=avisoFirmado && avisoFirmado.consentimiento_activo
+                    )
+                    label(for="acepto").text-sm.text-gray-700
+                        | He leído y acepto el Aviso de Privacidad y autorizo el tratamiento de mis datos personales.
+
+                div(class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600")
+
+                    div
+                        span.font-semibold Fecha:
+                        |  #{new Date().toLocaleDateString('es-MX')}
+                    div
+                        span.font-semibold Dirección IP:
+                        |  Se registrará automáticamente
+
+                if !avisoFirmado
+                    div(class="flex.justify-end")
+                    
+                        button(
+                            type="submit"
+                            class="w-full bg-green hover:bg-blue text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-transform duration-200 transform hover:scale-105 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        )
+                            | Aceptar y Firmar
+                else 
+                    div(class="flex.justify-end")
+                    
+                        a(
+                            href=`${folder}/info/extra-info`
+                            class="w-full bg-green hover:bg-blue text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-transform duration-200 transform hover:scale-105 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        )
+                            | Guardar
+    
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    script.
+        AOS.init();

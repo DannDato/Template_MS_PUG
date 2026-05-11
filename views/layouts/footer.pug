@@ -1,0 +1,23 @@
+block vars
+    - var folder = folder || ''
+    - var currentYear = new Date().getFullYear()
+footer.site-footer
+  .container(data-aos="fade-right")
+    h4.footer-title Centro universitario de ciencias de la salud
+
+
+  .container
+    .logos-container(data-aos="fade-up", data-aos-delay="200")
+      img.footer-logo(src=`${folder}/img/udg.png`, alt="CUCS UdeG")
+
+  .container
+    .footer-bottom
+      .footer-links
+        a(href="https://www.ammfen.mx/aviso-de-privacidad.aspx", target="_blank") Aviso de Privacidad
+        a(href=`${folder}/contacto`) Contacto
+
+      p.copyright © #{currentYear} Universidad de Guadalajara. Todos los derechos reservados.
+      br
+      p.copyright(style="font-size: 10px;")
+        | Sitio desarrollado por
+        a(href="https://datech.dannprod.com/", style="color: white;", target="_blank") Datech

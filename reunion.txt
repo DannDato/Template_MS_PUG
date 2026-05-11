@@ -1,0 +1,44 @@
+
+cucs.udg.mx/ammfen
+
+limite de 30 cupo a talleres
+
+en lugar de porcentaje de descuento : Costo preferencial afiliado a la AMMFEN
+
+
+agregar 
+sexo en información extra
+teléfono de contacto
+contacto de emergencia
+
+
+DOCUMENTOS PROBATORIOS:
+	-credencial
+	-...
+
+folios : 00000-2026 iniciando del 1,000
+
+
+código de barras en folio de asistentes
+
+validación de asistencia al cngreso
+pagina que lea el lector de código de barras,
+busca el registro
+muestra información
+habilita botón de entregar kit
+marcar como kit entregado
+limpiar info
+
+
+_______________Ficha de acceso_______________
+
+LADO CODIGO DE BARRAS
+-Te invitamos a acudir a partir del dia 17 de marzo en un horario de 5 a 7 pm o el dia 18 de 8am a 10am por la entrega de tu kit de bienvenida
+
+
+INSTRUCCIONES GENERALES DEL EVENTO
+-Dirección del lugar
+-Recomendaciones
+-te sugerimos llegar 20 minutos antes del inicio de la conferencia
+ QR de información extra
+-consulta el programa

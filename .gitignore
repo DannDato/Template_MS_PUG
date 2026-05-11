@@ -1,0 +1,45 @@
+/node_modules
+.env
+/.vscode
+web.config
+ecosystem.config.js
+public/uploads/*
+public/files/*
+!public/uploads/.gitkeep
+
+
+# ---------------------------------------------
+# Global OS/editor noise
+# ---------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ---------------------------------------------
+# Dependency directories
+# ---------------------------------------------
+node_modules/
+**/node_modules/
+
+# ---------------------------------------------
+# Environment and secrets
+# ---------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------
+# Build output
+# ---------------------------------------------
+.cache/
+tmp/
+temp/
+*.local

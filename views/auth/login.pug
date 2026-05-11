@@ -1,0 +1,102 @@
+block vars
+    - var folder = folder || ''
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Iniciar Sesión
+
+    //- 1. ESTILOS DEL NAVBAR Y FOOTER (Tu CSS personalizado)
+    link(rel="stylesheet", href=`${folder}/css/styles.css`)
+    link(rel="stylesheet", href=`${folder}/css/mobile.css`)
+    link(rel="icon" href=`${folder}/img/icon.ico`)
+
+    //- 2. ESTILOS DEL FORMULARIO (Tailwind CSS)
+    //- Nota: Si ya tienes Tailwind instalado localmente, usa tu archivo build.
+    //- Si no, dejo el CDN aquí para asegurar que el formulario se vea bien ahora mismo.
+    script(src="https://cdn.tailwindcss.com")
+
+    //- Librerías extra (Iconos y AOS)
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    link(href="https://unpkg.com/aos@2.3.1/dist/aos.css", rel="stylesheet")
+
+    //- Un pequeño ajuste para que Tailwind no rompa tu Navbar (reset conflict)
+    style.
+      /* Asegura que el navbar siempre esté arriba */
+      .navbar { z-index: 50; }
+
+  body.bg-gray-50
+    //- --- INCLUDE NAVBAR ---
+    include ../layouts/navbar.pug
+
+
+
+    //- --- CONTENIDO LOGIN ---
+    section.banner.login-banner
+      .banner-motion(aria-hidden="true")
+        span.orb.orb-a
+        span.orb.orb-b
+        span.orb.orb-c
+        .banner-grid
+
+      div(data-aos="fade-up" style="z-index: 20;").container.mx-auto.px-4.py-12
+
+        h1.text-4xl.my-10.font-extrabold.text-center Iniciar sesión
+        //- h2.text-center.text-2xl.font-extrabold= pagina
+
+        //- Bloque de Errores (Opcional, pero recomendado visualizar errores generales)
+        if errores
+            div(class="login-form-container mx-auto my-4")
+                each error in errores
+                    //- Solo mostramos errores que NO sean de campos específicos (si quieres)
+                    if !error.path
+                        p.bg-red-600.text-white.uppercase.text-xs.text-center.p-2.mb-1.font-bold= error.msg
+
+        .mt-8.mx-auto.login-form-container
+            .bg-white.py-8.px-10.shadow-lg.rounded-lg(style="width: 100%;")
+                form.space-y-5(method="POST" action=`${folder}/auth/login` novalidate)
+                    input(type="hidden" name="_csrf" value=csrfToken)
+
+                    //- CAMPO EMAIL
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="email") Código
+
+                        - const errorEmail = errores ? errores.find(e => e.path === 'email' || e.path === 'correo') : null
+
+                        input#email.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            placeholder="Tu codigo de UdG"
+                            type="email"
+                            name="email"
+                            class= errorEmail ? 'border-red-500' : 'border-gray-300'
+                        )
+                        if errorEmail
+                            p.text-red-500.text-xs.mt-1.font-bold= errorEmail.msg
+
+                    //- CAMPO PASSWORD
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="password") Contraseña
+
+                        - const errorPass = errores ? errores.find(e => e.path === 'password') : null
+
+                        input#password.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            placeholder="Tu contraseña de siiau"
+                            type="password"
+                            name="password"
+                            class= errorPass ? 'border-red-500' : 'border-gray-300'
+                        )
+                        if errorPass
+                            p.text-red-500.text-xs.mt-1.font-bold= errorPass.msg
+
+                    div.flex.items-center.justify-between
+                        //- a.text-gray-600.text-xs.hover_text-indigo-500(href=`${folder}/auth/registro`) ¿No tienes cuenta? Crear una
+                        a.text-gray-600.text-xs.hover_text-indigo-500(href=`${folder}/auth/olvide-password`) Olvide mi contraseña
+
+                    input(class="w-full text-white font-bold py-3 cursor-pointer rounded-md transition-colors login bg-green" type="submit" value="Iniciar Sesión")
+
+    //- INCLUDE NAVBAR
+    include ../layouts/footer.pug
+
+    //- SCRIPTS NECESARIOS PARA EL NAVBAR
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    script.
+        AOS.init();

@@ -1,0 +1,316 @@
+extends ../layouts/includes/index
+
+block vars
+    - var stepActivo = 'acceso'
+    - var avisoFirmado = avisoFirmado || true;
+    - var folder = folder || ''
+
+block contenido
+    style.
+        .barcode-font {
+            font-family: 'Libre Barcode 39 Text', cursive;
+            font-size: 40px;
+            font-weight: normal;
+        }
+        
+        .layout-padding {
+            padding: 1rem;
+        }
+        
+        .header-grid {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 1rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .talleres-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .taller-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            justify-content: flex-start;
+        }
+
+        .taller-fecha {
+            display: flex;
+            justify-content: flex-start;
+            gap: 1rem;
+        }
+
+        
+        .desktop-only {
+            display: none;
+        }
+        
+        
+        .logo-responsive {
+            margin: 0 auto; 
+            padding: 0;
+        }
+
+        @media (min-width: 768px) {
+            .layout-padding {
+                padding: 2.5rem; 
+            }
+            .header-grid {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+            .info-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .talleres-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+            .taller-item {
+                flex-direction: row;
+                gap: 1.25rem; 
+            }
+            .taller-fecha {
+                justify-content: flex-end;
+            }
+            .desktop-only {
+                display: block;
+            }
+            .logo-responsive {
+                margin: 0 2.25rem; 
+                padding: 0 1.5rem; 
+            }
+        }
+        @media (max-width: 480px) {
+            .no-mobile {
+                display: none;
+            }
+        }
+        @media print {
+            body {
+                visibility: hidden;
+                margin: 0;
+                padding: 0;
+            }
+            #area-impresion {
+                visibility: visible !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 133%; /* Compensacion del scale */
+                margin: 0 !important;
+                transform: scale(0.75); 
+                transform-origin: top left; 
+                padding: 15px !important; 
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                border-radius: 15px !important;
+            }
+            #area-impresion * {
+                visibility: visible !important;
+            }
+            #area-impresion br {
+                display: none;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print { display: none !important; }
+            
+            .header-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
+            .layout-padding { padding: 2.5rem; }
+            .desktop-only { display: block; }
+            .no-mobile{ display: block;}
+        }
+
+    link(href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap" rel="stylesheet")
+    link(href="https://unpkg.com/aos@2.3.1/dist/aos.css", rel="stylesheet")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+
+    //- Contenedor principal
+    div(class="items-center justify-center bg-gray-50 px-4" style="min-height: 60vh;")
+        if acceso.total_pagado
+            if acceso.congreso_validado === 'Si'
+                div.text-center.pt-5
+                    h1(style="font-family: 'Montserrat', sans-serif; color: var(--text); font-weight: 800; font-size: 2rem;") Tu acceso al congreso
+                    p.mt-2(style="font-family: 'Merriweather', serif; color: #64748b; font-size: 1rem;") 
+                        | Este es tu pase oficial de entrada. A continuación se detallan tus datos de registro y las actividades habilitadas.
+                    br
+                    h2.text-gray-900.font-bold Instrucciones de ingreso
+                    p.mt-2.px-4(style="font-family: 'Merriweather', serif; color: #64748b; font-size: 1rem;")
+                        | Presenta este comprobante de forma 
+                        strong.txt-blue digital o impresa 
+                        | en el módulo de registro a tu llegada.
+                        br.desktop-only
+                        | Es indispensable mostrar una 
+                        strong(style="color:#252525") identificación oficial vigente 
+                        | (INE o credencial de estudiante) para validar tu identidad.
+                        br.desktop-only
+                        | El acceso a los 
+                        strong.txt-green talleres 
+                        | dependerá de que el estatus aparezca como 
+                        strong(style="color:#252525") "Pagado" o "Validado"
+                        | .
+                        br.desktop-only
+                        | Te recomendamos llegar con 
+                        strong.text-blue-900 30 minutos de anticipación 
+                        | para evitar filas y contratiempos.
+                    br
+                div(class="w-full mx-auto" style="max-width: 900px;")
+                    div#area-impresion.h-auto(class="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200" style="border-radius: 20px;")
+                        
+                        div.pt-6.layout-padding.pb-0(style="width: 100%;")    
+                            div.header-grid
+                                div.col-span-3(style="width: 100%; padding-bottom: 0px;")
+                                    h5.no-print La Universidad de Guadalajara presenta
+                                    h1.font-bold.txt-blue.text-2xl XXXIX CONGRESO NACIONAL AMMFEN
+                                    h3.no-print GUADALAJARA | 2026
+                                    h4 Del 18 al 20 de marzo de 2026
+                                    .separator-line.no-print
+                                    h5.no-print Conectar, crear e innovar en nutrición
+                                    .banner-right
+                                div
+                                    br.desktop-only
+                                    img.banner-logo.logo-responsive(src=`${folder}/img/logo.png`, alt="AMMFEN Logo", style="width: 150px;").no-print
+                        
+                        div.layout-padding(style="width: 100%;")
+                            div.info-grid
+                                div(class="col-span-1 md:col-span-2").text-center
+                                    h3.txt-blue.font-bold.text-xl Titular
+                                    h1.text-2xl.font-bold= `${acceso.nombre}`
+                                    h5.text-center Acceso al congreso
+                                    br
+                                    if acceso.congreso_validado === 'Si'
+                                        h4.bg-green-300.rounded.text-center.font-bold Acceso al congreso validado
+                                
+                                if talleres && talleres.length > 0
+                                    div(class="col-span-1 md:col-span-2").no-mobile
+                                        if talleres.length > 1
+                                            h3.txt-blue.font-bold.text-xl.mt-4 Talleres
+                                        else if talleres.length === 1
+                                            h3.txt-blue.font-bold.text-xl.mt-4 Taller
+                                        br
+                                        
+                                        div.talleres-grid
+                                            each taller in talleres
+                                                div.col-span-2
+                                                    div.taller-item
+                                                        h4.font-bold.text-left= taller.nombre
+                                                        div
+                                                            if taller.pagado === 'Si'
+                                                                h4.bg-green-300.rounded.text-center.font-bold.px-3.inline-block= `Pagado`
+                                                                if taller.pago_validado === 'Si'
+                                                                    h4.bg-green-300.rounded.text-center.font-bold.px-3.inline-block.ml-2= `Validado`
+                                                                else
+                                                                    h4.bg-red-300.rounded.text-center.font-bold.px-3.inline-block.ml-2= `No validado`
+                                                            else
+                                                                h4.bg-red-300.rounded.text-center.font-bold.px-3.inline-block= `No pagado`
+                                                        
+                                                div.taller-fecha
+                                                    h3.text-s.text-gray-800= taller.fecha
+                                                    h3.text-s.text-gray-900.font-bold= taller.hora
+
+                                        br
+                                        br
+                                        hr
+                                div.mt-4
+                                    h4.txt-blue.font-bold Instrucciones
+                                    ul.list-disc.list-inside.text-xs.gap-5
+                                        li Presenta este comprobante en la entrada del congreso.
+                                        li Asegúrate de llegar con anticipación para evitar filas.
+                                        li Presenta una identificación oficial.
+                                        li Sigue las indicaciones del personal del evento.
+                                        li El registro se realizara el día 17 de Marzo de 17:00 - 19:00 hrs, o el 18 demarzo de 8:00 - 10:00 am.
+                                
+                                div.mt-4
+                                    div(class="grid grid-cols-2").no-mobile.no-print
+                                        h3.font-bold Acceso al congreso:
+                                        h3.text-right.text-blue-700.font-base= `$ ${Number(acceso.costo_congreso).toLocaleString('es-MX')} MXN`
+
+                                    div(class="grid grid-cols-2").no-mobile.no-print
+                                        h3.font-bold Total de talleres:
+                                        h3.text-right.text-blue-700.font-base= `$ ${Number(acceso.costo_talleres).toLocaleString('es-MX')} MXN`
+
+                                    div(class="grid grid-cols-2").no-mobile.no-print
+                                        h3.font-bold Total a pagar:
+                                        h3.text-right.text-gray-700.font-base= `$ ${(parseInt(acceso.costo_congreso || 0) + parseInt(acceso.costo_talleres || 0)).toLocaleString('es-MX')} MXN`
+
+                                    div(class="grid grid-cols-2 gap-4")
+                                        h3.font-bold Total pagado:
+                                        h3.text-right.text-gray-700.font-base= `$ ${Number(acceso.total_pagado).toLocaleString('es-MX')} MXN`
+
+                                    div(class="grid grid-cols-2 gap-4")
+                                        h3.font-bold Pago validado:
+                                        h3.text-right.text-black.font-bold= `$ ${Number(acceso.total_validado).toLocaleString('es-MX')} MXN`
+                            br
+                            hr
+                            div(class="flex flex-col md:flex-row")
+                                div(class="w-full p-4 border-b border-gray-200 md:w-1/2 md:border-b-0 md:border-r")
+                                    
+                                    h3(class="text-sm font-bold text-gray-400 uppercase tracking-wide mb-6") Ubicación del congreso
+                                    div.text-center
+                                        img.mx-auto.no-print(src=`${folder}/img/logos/caes-black.png`, alt="Conjunto santander de artes escénicas", style="width: 100%; max-width: 300px;")
+                                        br
+                                        p(class="mt-4 text-gray-600 text-justify") El congreso se llevará a cabo en el Conjunto Santander de Artes Escénicas, ubicado en Guadalajara, Jalisco.
+                                        a(href="https://maps.app.goo.gl/qn6wWD7vevrStmzLA" target="_blank" class="text-indigo-600 hover_text-indigo-800 underline"
+                                        ) Anillo Perif. Nte. Manuel Gómez Morín 1695, Rinconada de La Azalea, Belenes Nte., 45180 Zapopan, Jal.
+                                        div.pb-5
+                                        hr
+                                        div
+                                            div(class="mt-6 text-center")
+                                                h3.font-bold.text-lg Código de acceso
+                                                br
+                                                p.barcode-font.text-5xl.break-words= `*${acceso.folio}*`
+                                        
+                                div(class="w-full p-4 bg-gray-50 md:w-1/2")
+                                    h3(class="text-sm font-bold text-gray-400 uppercase tracking-wide mb-6") Acerca del congreso
+                                    h3.font-bold Escanea este código QR para tener el programa del congreso y más detalles de tu visita a Guadalaajara
+                                    div(class="space-y-6")
+                                        br
+                                        center 
+                                            img(src=`${folder}/files/qr-convocatoria.png` alt="QR Congreso" style="width: 180px; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 10px;")
+                                        br
+                                        p.text-gray-600.text-center.text-sm XXXIX Congreso Nacional AMMFEN
+      
+                    br
+                    button.no-print(
+                        onclick="window.print()" 
+                        class="w-full h-14 bg-green hover:bg-blue transition-colors rounded-xl shadow-md flex items-center justify-center text-white font-bold cursor-pointer mb-10"
+                    )
+                        i.fas.fa-print.mr-2
+                        | Imprimir Pase                                      
+            else
+                div.mt-8.mx-auto(style="max-width: 750px;")
+                    div.bg-white.p-8.rounded-lg.shadow-lg.border-t-4.border-yellow-500.text-center
+                        div.text-yellow-500.text-5xl.mb-4
+                            i.fas.fa-clock
+                        h2.text-xl.font-bold.text-gray-800.mb-2 Pago en espera de validación
+                        p.text-gray-800.mb-6 Por el momento, los administradores no han validado tu pago para el congreso.
+                            br
+                            | Si tienes alguna duda puedes comunicarte por correo al correo: 
+                            a(href="mailto:iflores.fong@academicos.udg.mx" style="color:var(--primary); text-decoration:underline;") iflores.fong@academicos.udg.mx 
+                            | favor, espera a que se complete este proceso..
+                            br
+        else 
+            div.mt-8.mx-auto(style="max-width: 750px;")
+                    div.bg-white.p-8.rounded-lg.shadow-lg.border-t-4.border-yellow-500.text-center
+                        div.text-yellow-500.text-5xl.mb-4
+                            i.fas.fa-clock
+                        h2.text-3xl.font-bold.text-gray-800.mb-4 Pago no recibido
+                        p.text-gray-600.text-lg.mb-8 No hemos encontrado comprobantes de pago asociados a tu cuenta. Por favor, regresa y sube tus comprobantes de pago correspondientes.
+                        a(href=`${folder}/user/referencia` class="inline-block bg-gray-800 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-gray-900 transition transform hover:scale-105")
+                            i.fas.fa-arrow-left.mr-2
+                            | Regresar a mis referencias     
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    script.
+        AOS.init();

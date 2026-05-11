@@ -1,0 +1,57 @@
+block vars
+    - var stepActivo = 'aviso' // Esto viene de tu backend
+    - var folder = folder || ''
+    
+    //- 1. DEFINIR LINKS ANTES DEL INCLUDE
+    //- Esto es vital para que el toolbar sepa a donde ir
+    case stepActivo
+        when 'aviso'
+            - prevLink = null
+            - nextLink = `${folder}/info/extra-info`
+        when 'info'
+            - prevLink = `${folder}/user/aviso`
+            - nextLink = `${folder}/user/talleres`
+        when 'talleres'
+            - prevLink = `${folder}/info/extra-info`
+            - nextLink = `${folder}/user/referencia`
+        when 'referencia'
+            - prevLink = `${folder}/user/talleres`
+            - nextLink = `${folder}/user/acceso`
+        when 'acceso'
+            - prevLink = `${folder}/user/referencia`
+            - nextLink = `${folder}/user/carrera`
+        when 'carrera'
+            - prevLink = `${folder}/user/acceso`
+            - nextLink = null
+        when 'perfil'
+            - prevLink = `${folder}/user/acceso`
+            - nextLink = null
+
+doctype html
+html(lang="es")
+    head
+        meta(charset="utf-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        meta(name="viewport", content="width=device-width, initial-scale=1")
+        title AMMFEN | #{pagina}
+        meta(name="csrf-token" content=csrfToken)
+        link(rel="stylesheet", href=`${folder}/css/styles.css`)
+        link(rel="stylesheet", href=`${folder}/css/mobile.css`)
+        link(rel="stylesheet", href=`${folder}/css/step.css`)
+        link(rel="stylesheet", href=`${folder}/css/chat.css`)
+        link(rel="icon" href=`${folder}/img/icon.ico`)
+        block styles 
+
+        script(src="https://cdn.tailwindcss.com") 
+        link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+        link(href="https://unpkg.com/aos@2.3.1/dist/aos.css", rel="stylesheet")
+        script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+        script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+        script(src=`${folder}/js/chat.js`)
+        
+    body.min-h-screen.bg-gray-50.p-5
+        if stepActivo !== 'editar'
+            include toolbar
+            
+        main(class="mx-auto")
+            block contenido

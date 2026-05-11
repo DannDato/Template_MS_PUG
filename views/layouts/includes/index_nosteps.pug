@@ -1,0 +1,77 @@
+block vars
+    - var stepActivo = 'aviso' // Valor por defecto
+    - var folder = folder || ''
+doctype html
+html(lang="es")
+    head
+        meta(charset="utf-8")
+        //- Corregido: http y IE=edge
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        meta(name="viewport", content="width=device-width, initial-scale=1")
+        title AMMFEN | #{pagina}
+
+        //- CSS 
+        //- link(rel="stylesheet", href="/css/app.css")
+        //- link(rel="stylesheet", href=`${folder}/css/styles.css`)
+        //- link(rel="stylesheet", href=`${folder}/css/mobile.css`)
+        //- link(rel="stylesheet", href=`${folder}/css/step.css`)
+
+        link(rel="stylesheet", href='/css/styles.css')
+        link(rel="stylesheet", href=`/css/mobile.css`)
+        link(rel="stylesheet", href=`/css/step.css`)
+        link(rel="icon" href=`${folder}/img/icon.ico`)
+
+        block styles 
+
+        //- Tailwind (Layout del Dashboard)
+        script(src="https://cdn.tailwindcss.com") 
+        
+        //- Iconos y Animaciones
+        link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+        link(href="https://unpkg.com/aos@2.3.1/dist/aos.css", rel="stylesheet")
+
+        //- SweetAlert2
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            
+    body.min-h-screen.bg-gray-50.p-5
+        //- Corregido: container (antes decía conainer)
+        include toolbar
+        main(class="mx-auto mt-10 px-5 pb-10")
+        case stepActivo
+                when 'aviso'
+                    - prevLink = null
+                    - nextLink = `${folder}/info/extra-info`
+                when 'info'
+                    - prevLink = `${folder}/user/aviso`
+                    - nextLink = `${folder}/user/talleres`
+                when 'talleres'
+                    - prevLink = `${folder}/info/extra-info`
+                    - nextLink = `${folder}/user/referencia`
+                when 'referencia'
+                    - prevLink = `${folder}/user/talleres`
+                    - nextLink = `${folder}/user/acceso`
+                when 'acceso'
+                    - prevLink = `${folder}/user/referencia`
+                    - nextLink = null
+                when 'perfil'
+                    - prevLink = `${folder}/user/acceso`
+                    - nextLink = null
+        div(class="flex flex-col md:flex-row justify-between items-center gap-6 w-full max-w-5xl mx-auto mb-10 select-none")
+
+            a(
+                href= prevLink ? prevLink : 'javascript:void(0)'
+                class=`order-2 md:order-1 flex items-center gap-2 px-5 py-2 rounded-lg font-medium border border-gray-200 transition-all duration-300
+                ${prevLink ? 'bg-white text-gray-600 hover:shadow-md cursor-pointer' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`
+            ) 
+                i.fa-solid.fa-chevron-left.text-xs
+                | Anterior
+
+            a(
+                href= (nextLink && avisoFirmado) ? nextLink : 'javascript:void(0)'
+                class=`order-3 flex items-center gap-2 px-5 py-2 rounded-lg font-medium border border-gray-200 transition-all duration-300
+                ${(nextLink && avisoFirmado) ? 'bg-white text-gray-600 hover:shadow-md cursor-pointer' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`
+            ) 
+                | Siguiente
+                i.fa-solid.fa-chevron-right.text-xs
+
+        block contenido

@@ -1,0 +1,120 @@
+block vars
+    - var folder = folder || ''
+
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Jornadas CUCS
+    script(src="https://cdn.tailwindcss.com")
+    link(rel="icon" href=`${folder}/img/icon.ico`)
+    link(rel="stylesheet", href=`${folder}/css/styles.css`)
+    link(rel="stylesheet", href=`${folder}/css/mobile.css`)
+    link(href="https://unpkg.com/aos@2.3.1/dist/aos.css", rel="stylesheet")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+
+  body
+    //- INCLUDE NAVBAR
+    include ../layouts/navbar.pug
+
+    //- --- BANNER ---
+    section.banner
+      .banner-motion(aria-hidden="true")
+        span.orb.orb-a
+        span.orb.orb-b
+        span.orb.orb-c
+        .banner-grid
+      .container.banner-content
+        .banner-left
+          img.banner-logo(src=`${folder}/img/icon.png`, alt="CUCS Logo", data-aos="zoom-in", data-aos-duration="1200", data-aos-delay="200")
+
+        .banner-right
+          .hero-box(data-aos="zoom-in-up", data-aos-duration="1000")
+            h5(data-aos="fade-up", data-aos-delay="200") El Centro Universitario de Ciencias de la Salud les ofrece la mas cordial bienvenida a
+            h1(data-aos="fade-up", data-aos-delay="300")
+              strong Jornada Academico Pedagogica 2026
+            h3(data-aos="fade-up", data-aos-delay="400") GUADALAJARA | 2026
+            .separator-line(data-aos="zoom-in", data-aos-delay="600")
+            h5.text-3xl(data-aos="fade-up", data-aos-delay="700") Inteligencia artificial y nuevas estrategias para la docencia en salud
+            .nav-buttons
+              a.login(href=`${folder}/auth/login` class="px-5 py-2 text-white rounded-full shadow-lg" data-aos="fade-up", data-aos-delay="1000") Iniciar sesión
+              //- a.register(href=`${folder}/auth/registro` class="px-5 py-2 text-white rounded-full shadow-lg") Registrarse
+
+    section.welcome.mx-auto.p-10.py-12(class="md:max-w-4xl lg:max-w-7xl")
+        h2.text-4xl.font-bold.text-center.my-5(data-aos="fade-up" class="lg:mt-[-100px] md:mt-0") Bienvenidas y Bienvenidos
+        .separator-line.section-separator(data-aos="zoom-in", data-aos-delay="120")
+        .text-card(data-aos="fade-up", data-aos-delay="200")
+          p.text-justify.text-lg(class="lg:mt-[-100px] md:mt-0")
+            | La IA ya no es una promesa futurista, sino una realidad integrada a las ciencias de la salud. En este escenario,
+            | el profesorado enfrenta el reto de formar estudiantes que utilizarán estas herramientas de manera ubicua,
+            | lo que exige una actualización docente que vaya más allá del manejo de software y se adentre en la comprensión profunda de los mecanismos,
+            | sesgos y marcos legales de la tecnología. <br><br>
+            | En el Centro Universitario de Ciencias de la Salud, la Jornada Académico-Pedagógica 2026, se erige como el espacio propicio para orquestar esta transición,
+            | buscando que el personal docente del CUCS pase de ser un espectador a un codiseñador de entornos de aprendizaje donde la tecnología potencie la intervención humana,
+            | la ética y la seguridad del paciente. <br><br>
+            | Se parte de la premisa de que la IA no es un sustituto del juicio humano, sino un aliado pedagógico que permite liberar al docente de tareas repetitivas para centrarse en
+            | la formación del pensamiento crítico, la empatía clínica y la ética del cuidado.
+
+    section.bg-gray-200.objetives.mx-auto.flex.flex-col.items-center.p-10.py-12
+      div.p-10.py-12(class="md:max-w-4xl lg:max-w-7xl")
+        h2.text-4xl.font-bold.text-center.my-10(data-aos="fade-up") Objetivos
+        .separator-line.section-separator(data-aos="zoom-in", data-aos-delay="120")
+        .text-card(data-aos="fade-up", data-aos-delay="200")
+          p.text-justify.text-lg
+            | Fortalecer las competencias pedagógicas y éticas del personal docente del CUCS, desde la inteligencia artificial,
+            | promoviendo el desarrollo de competencias digitales para la enseñanza y la investigación, teniendo como ejes rectores la dignidad humana y la integridad científica.
+        .experience-grid
+          article.experience-card.strategy-card(data-aos="fade-right" data-aos-delay="200")
+            .separator-line.section-separator(data-aos="zoom-in", data-aos-delay="120")
+            .experience-head
+              h3 Estrategias
+            ul.experience-list
+              li
+                span.pill-marker 01
+                p Dos sesiones masivas en modalidad presencial, con duración de 4 horas diarias (valor curricular: 8 horas).
+              li
+                span.pill-marker 02
+                p Trabajo en talleres vespertinos (a elección de cada profesor).
+
+          article.experience-card.accredit-card(data-aos="fade-left" data-aos-delay="260")
+            .separator-line.section-separator(data-aos="zoom-in", data-aos-delay="120")
+            .experience-head
+              h3 Acreditación
+            p.accredit-text
+              | Contar al menos con el 80% de asistencia a las conferencias y entregar el total de los productos solicitados
+              | con apego a los criterios establecidos.
+
+
+    section.bg-white.objetives.mx-auto.flex.flex-col.items-center.p-10.py-12
+      div.p-10.py-12(class="md:max-w-4xl lg:max-w-7xl")
+        h2.text-4xl.font-bold.text-center.my-10(data-aos="fade-up") Comité organizador
+        .separator-line.section-separator(data-aos="zoom-in", data-aos-delay="120")
+        .text-card(data-aos="fade-up", data-aos-delay="200")
+
+        ul.list-disc.grid.grid-gols-1(class="md:grid-cols-2 lg:grid-cols-3 gap-8" style="    line-height: 18px;")
+          li Mtro. Eduardo Gómez Sánchez
+          li Dra. Beatríz Verónica Panduro Espinoza
+          li Mtro. Juan Francisco Flores Bravo
+          li Dra. María Guadalupe Ramos Zavala
+          li Psic. Cristina Viridiana Cuevas Ramírez
+          li Dra. Alma Marina Sánchez Sánchez
+          li Mtro. Eduardo Álvarez Sosa
+          li Mtra. Laura Andrea Calderón Padilla
+          li Mtro. José Miguel Ángel Llamas Montes
+          li Mtra. Diana Paola Arenas Santana
+          li Lic. Denisse Alejandra Ibarra Ruelas
+          li Lic. Uriel Alejandro Arias Ramírez
+          li Lic. Lorena Huerta Navarrete
+          li Mtro. Raúl Maldonado Rodríguez
+          li C. Joshua Abdiel Libonatti Valdivia
+
+    include ../layouts/footer.pug
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    script.
+      AOS.init({
+        duration: 1000,
+        once: true,
+        offset: 100,
+        easing: 'ease-out-back',
+      });

@@ -1,0 +1,421 @@
+extends ../layouts/includes/index
+block vars
+    - var folder = folder || ''
+    - var stepActivo = "editar"
+block contenido
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+    h1(class="text-center font-bold") Nombre - #{user_name}
+    div(class="grid grid-cols-1 md:grid-cols-2 gap-8")
+        if infoExtra && !infoExtra.length > 0
+            div
+                form(
+                    method="POST"
+                    action=`${folder}/user/extra-info`
+                    class="space-y-6"
+                    
+                )
+                input(type="hidden" name="_csrf" value=csrfToken)
+                
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="lugar")
+                        | Lugar de origen
+                    input#lugar.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        name="lugar"
+                        required
+                        disabled
+                        value = infoExtra ? infoExtra.lugar : ''
+                        placeholder="Ciudad / País"
+                    )
+
+                //- Edad
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="edad")
+                        | Edad
+                    input#edad.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        name="edad"
+                        required
+                        disabled
+                        value = infoExtra ? infoExtra.edad : ''
+                        placeholder="Ej. 25"
+                    )
+
+                //- Numero de telefono
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="telefono")
+                        | Télefono
+                    input#edad.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        value = infoExtra ? infoExtra.telefono : ''
+                        name="telefono"
+                        required
+                        disabled
+                        placeholder="Ej. +52 333 123 4567"
+                        
+                    )
+
+                //- Contacto de emergencia
+                div
+                    label.block.text-sm.font-medium.text-gray-700(for="emergencia")
+                        | Contacto de emergencia
+                    input#contacto_emergencia.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                        type="text"
+                        value = infoExtra ? infoExtra.emergencia : ''
+                        name="emergencia"
+                        required
+                        disabled
+                        placeholder="Nombre y teléfono"
+                    )
+
+                //- Sexo
+
+                div
+                    .form-group
+                        label(for="sexo") Sexo
+                        select#sexo.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="sexo"
+                            required
+                            disabled
+                        )
+                            option(value="") Selecciona una opción
+                            option(
+                                value="Masculino"
+                                selected=infoExtra && infoExtra.sexo === "Masculino"
+                            ) Masculino
+                            option(
+                                value="Femenino"
+                                selected=infoExtra && infoExtra.sexo === "Femenino"
+                            ) Femenino
+                            option(
+                                value="Otro"
+                                selected=infoExtra && infoExtra.sexo === "Otro"
+                            ) Prefiero no decirlo
+                //- Ocupación
+                div
+                    .form-group
+                        label(for="ocupacion") Ocupación
+                        select#ocupacion.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="ocupacion_id"
+                            required
+                            disabled
+                        )
+                            option(value="") Selecciona una ocupación
+                            each ocupacion in ocupaciones
+                                option(
+                                    value=ocupacion.id
+                                    data-ocupacion=ocupacion.nombre
+                                    selected=infoExtra && infoExtra.ocupacion_id == ocupacion.id
+                                )= ocupacion.nombre
+
+                //- Universidad
+                div
+                    .form-group
+                        label(for="universidad") Universidad
+                        select#universidad.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="universidad_id"
+                            required
+                            disabled
+                        )
+                            option(value="") Selecciona tu universidad
+                            each universidad in universidades
+                                option(
+                                    value=universidad.id
+                                    data-descuento=universidad.descuento
+                                    data-afiliado=universidad.afiliado
+                                    selected=infoExtra && infoExtra.universidadId == universidad.id
+                                )= universidad.nombre
+
+                p#descuento-info.text-sm.text-green-600.hidden
+
+                div
+                    .form-group
+                        label(for="carrera") Carrera
+                        select#carrera.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
+                            name="carrera_id"
+                            required
+                            disabled
+                        )
+                            option(value="") Selecciona tu carrera
+                            each carrera in carreras
+                                option(
+                                    value=carrera.id
+                                    selected=infoExtra && infoExtra.carrera_id == carrera.id
+                                )= carrera.nombre
+                div#otra-universidad-container.hidden
+                    label.block.text-sm.font-medium.text-gray-700(for="otra_universidad")
+                        | Especifica tu universidad
+                    input#otra_universidad.w-full.px-3.py-3.border.rounded-md(
+                        type="text"
+                        name="otra_universidad"
+                        value= infoExtra ? infoExtra.otra_universidad : ''
+                        placeholder="Nombre de la universidad"
+                        disabled
+                    )
+                div#otra-carrera-container.hidden
+                    label.block.text-sm.font-medium.text-gray-700(for="otra_carrera")
+                        | Especifica tu Carrera
+                    input#otra_carrera.w-full.px-3.py-3.border.rounded-md(
+                        type="text"
+                        name="otra_carrera"
+                        value= infoExtra ? infoExtra.otra_carrera : ''
+                        placeholder="Nombre de la carrera"
+                )
+                
+
+                
+        else
+            div.rounded-xl.p-10.text-center.border.border-dashed(style="background-color: #f5f5f5; border-color: var(--primary);")
+                    i.fas.fa-chalkboard.text-4xl.mb-3(style="color: var(--primary); opacity: 0.5;")
+                    p(style="color: var(--text);") No tiene información por el momento.
+        div.space-y-6
+            div.border.rounded-lg.p-4.bg-gray-50.h-50
+                h3.text-sm.font-semibold.text-gray-700.mb-3.text-center Archivos Probatorios
+                div.flex.flex-wrap.gap-2.justify-center
+                    each archivo in archivos
+                        if archivo.tipo === 'imagen'
+                            a(
+                                href=`${folder}/uploads/probatorios/${archivo.descripcion}`
+                                target="_blank"
+                            )
+                                button(type="button" class="flex items-center text-red-600 text-sm font-medium bg-red-50 px-3 py-2 tracking-wide rounded-full cursor-pointer")
+                                    svg.w-4.mr-2.fill-current(
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                    )
+                                        g(fill-rule="evenodd" clip-rule="evenodd")
+                                            path(
+                                                d="M8.651 2.5c-2.52 0-4.15 1.729-4.15 4.404v8.146c0 2.676 1.63 4.404 4.15 4.404h8.647c2.525 0 4.156-1.728 4.156-4.404V6.904c.001-1.363-.415-2.501-1.203-3.29-.728-.729-1.747-1.114-2.949-1.114zm8.647 18.454H8.65C5.27 20.954 3 18.581 3 15.05V6.904C3 3.373 5.27 1 8.65 1h8.651c1.608 0 2.995.537 4.01 1.554 1.061 1.062 1.643 2.607 1.641 4.351v8.145c0 3.531-2.273 5.904-5.656 5.904z"
+                                                data-original="#000000"
+                                            )
+                                            path(
+                                                d="M9.856 6.69a1.096 1.096 0 1 0 .003 2.192 1.096 1.096 0 0 0-.003-2.193zm.001 3.69a2.598 2.598 0 0 1-2.596-2.595A2.598 2.598 0 0 1 9.857 5.19a2.6 2.6 0 0 1 2.597 2.595 2.599 2.599 0 0 1-2.597 2.596zM4.75 19.111a.75.75 0 0 1-.653-1.117c.06-.108 1.494-2.645 3.073-3.945 1.252-1.03 2.6-.464 3.686-.007.64.27 1.243.523 1.823.523.532 0 1.2-.94 1.79-1.769.818-1.156 1.748-2.464 3.11-2.464 2.17 0 4.043 1.936 5.05 2.976l.116.12a.751.751 0 0 1-.016 1.061.748.748 0 0 1-1.06-.016l-.118-.122c-.852-.88-2.438-2.519-3.972-2.519-.588 0-1.278.973-1.889 1.832-.838 1.18-1.705 2.401-3.01 2.401-.884 0-1.693-.34-2.406-.64-1.134-.479-1.648-.632-2.15-.218-1.365 1.124-2.707 3.498-2.72 3.521a.749.749 0 0 1-.655.383z"
+                                                data-original="#000000"
+                                            )
+                                    | Imagen
+                        else if archivo.tipo === 'pdf'
+                            a(
+                                href=`${folder}/uploads/probatorios/${archivo.descripcion}`
+                                target="_blank"
+                            )
+                                button(type="button" class="flex items-center text-green-600 text-sm font-medium bg-green-50 px-3 py-1.5 tracking-wide rounded-full cursor-pointer")
+                                    svg(class="w-4 mr-2 fill-current" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg")
+                                        path(d="M18.12 27.76H7.7a2.653 2.653 0 0 1-2.65-2.65V5.55A2.653 2.653 0 0 1 7.7 2.9h15.25a2.653 2.653 0 0 1 2.65 2.65v14.71a.9.9 0 0 0 1.8 0V5.55a4.455 4.455 0 0 0-4.45-4.45H7.7a4.455 4.455 0 0 0-4.45 4.45v19.56a4.455 4.455 0 0 0 4.45 4.45h10.42a.9.9 0 0 0 0-1.8z" data-original="#000000")
+                                        path(d="M21.992 6.431H8.664a.9.9 0 0 0 0 1.8h13.328a.9.9 0 0 0 0-1.8zm.9 6.231a.9.9 0 0 0-.9-.9H8.664a.9.9 0 0 0 0 1.8h13.328a.9.9 0 0 0 .9-.9zM8.66 18.89h4.18a.9.9 0 0 0 0-1.8H8.66a.9.9 0 0 0 0 1.8zm0 5.33h4.54a.9.9 0 0 0 0-1.8H8.66a.9.9 0 0 0 0 1.8zm19.009.882-7.029-7.029a1.589 1.589 0 0 0-1.031-.463l-2.624-.153a1.593 1.593 0 0 0-1.68 1.679l.153 2.625c.022.389.187.755.463 1.031l7.029 7.029c.65.651 1.505.976 2.359.976s1.709-.325 2.359-.976a3.338 3.338 0 0 0 .001-4.719zm-10.553-5.834 2.309.135 5.316 5.315-2.174 2.174-5.316-5.316zm9.281 9.28a1.54 1.54 0 0 1-2.174 0l-.384-.384 2.174-2.174.384.384a1.54 1.54 0 0 1 0 2.174z" data-original="#000000")
+                                    | PDF
+            div.border.rounded-lg.p-4.bg-gray-50
+                h3.text-sm.font-semibold.text-gray-700.mb-3.text-center Orden de pago
+                div.flex.flex-wrap.gap-2.justify-center
+                    each pago in pagos
+                        if pago.tipo === 'imagen'
+                            a(
+                                href=`${folder}/uploads/comprobantes/${pago.archivo}`
+                                target="_blank"
+                            )
+                                button(type="button" class="flex items-center text-red-600 text-sm font-medium bg-red-50 px-3 py-2 tracking-wide rounded-full cursor-pointer")
+                                    svg.w-4.mr-2.fill-current(
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                    )
+                                        g(fill-rule="evenodd" clip-rule="evenodd")
+                                            path(
+                                                d="M8.651 2.5c-2.52 0-4.15 1.729-4.15 4.404v8.146c0 2.676 1.63 4.404 4.15 4.404h8.647c2.525 0 4.156-1.728 4.156-4.404V6.904c.001-1.363-.415-2.501-1.203-3.29-.728-.729-1.747-1.114-2.949-1.114zm8.647 18.454H8.65C5.27 20.954 3 18.581 3 15.05V6.904C3 3.373 5.27 1 8.65 1h8.651c1.608 0 2.995.537 4.01 1.554 1.061 1.062 1.643 2.607 1.641 4.351v8.145c0 3.531-2.273 5.904-5.656 5.904z"
+                                                data-original="#000000"
+                                            )
+                                            path(
+                                                d="M9.856 6.69a1.096 1.096 0 1 0 .003 2.192 1.096 1.096 0 0 0-.003-2.193zm.001 3.69a2.598 2.598 0 0 1-2.596-2.595A2.598 2.598 0 0 1 9.857 5.19a2.6 2.6 0 0 1 2.597 2.595 2.599 2.599 0 0 1-2.597 2.596zM4.75 19.111a.75.75 0 0 1-.653-1.117c.06-.108 1.494-2.645 3.073-3.945 1.252-1.03 2.6-.464 3.686-.007.64.27 1.243.523 1.823.523.532 0 1.2-.94 1.79-1.769.818-1.156 1.748-2.464 3.11-2.464 2.17 0 4.043 1.936 5.05 2.976l.116.12a.751.751 0 0 1-.016 1.061.748.748 0 0 1-1.06-.016l-.118-.122c-.852-.88-2.438-2.519-3.972-2.519-.588 0-1.278.973-1.889 1.832-.838 1.18-1.705 2.401-3.01 2.401-.884 0-1.693-.34-2.406-.64-1.134-.479-1.648-.632-2.15-.218-1.365 1.124-2.707 3.498-2.72 3.521a.749.749 0 0 1-.655.383z"
+                                                data-original="#000000"
+                                            )
+                                    | Imagen
+                        else if pago.tipo === 'pdf'
+                            a(
+                                href=`${folder}/uploads/comprobantes/${pago.archivo}`
+                                target="_blank"
+                            )
+                                button(type="button" class="flex items-center text-green-600 text-sm font-medium bg-green-50 px-3 py-1.5 tracking-wide rounded-full cursor-pointer")
+                                    svg(class="w-4 mr-2 fill-current" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg")
+                                        path(d="M18.12 27.76H7.7a2.653 2.653 0 0 1-2.65-2.65V5.55A2.653 2.653 0 0 1 7.7 2.9h15.25a2.653 2.653 0 0 1 2.65 2.65v14.71a.9.9 0 0 0 1.8 0V5.55a4.455 4.455 0 0 0-4.45-4.45H7.7a4.455 4.455 0 0 0-4.45 4.45v19.56a4.455 4.455 0 0 0 4.45 4.45h10.42a.9.9 0 0 0 0-1.8z" data-original="#000000")
+                                        path(d="M21.992 6.431H8.664a.9.9 0 0 0 0 1.8h13.328a.9.9 0 0 0 0-1.8zm.9 6.231a.9.9 0 0 0-.9-.9H8.664a.9.9 0 0 0 0 1.8h13.328a.9.9 0 0 0 .9-.9zM8.66 18.89h4.18a.9.9 0 0 0 0-1.8H8.66a.9.9 0 0 0 0 1.8zm0 5.33h4.54a.9.9 0 0 0 0-1.8H8.66a.9.9 0 0 0 0 1.8zm19.009.882-7.029-7.029a1.589 1.589 0 0 0-1.031-.463l-2.624-.153a1.593 1.593 0 0 0-1.68 1.679l.153 2.625c.022.389.187.755.463 1.031l7.029 7.029c.65.651 1.505.976 2.359.976s1.709-.325 2.359-.976a3.338 3.338 0 0 0 .001-4.719zm-10.553-5.834 2.309.135 5.316 5.315-2.174 2.174-5.316-5.316zm9.281 9.28a1.54 1.54 0 0 1-2.174 0l-.384-.384 2.174-2.174.384.384a1.54 1.54 0 0 1 0 2.174z" data-original="#000000")
+                                    | PDF
+                        
+            div(class="max-w-5xl mx-auto")
+            
+                h2.text-3xl.font-light.mb-8.text-center(style="color: var(--text);") Talleres y Actividades del usuario
+
+                if talleres && talleres.length > 0
+                    div(class="grid grid-cols-1 md:grid-cols-2 gap-10 mx-5")
+                        each taller in talleres
+                            div.rounded-2xl.shadow-lg.p-6.border.relative.overflow-hidden.transition-transform.hover.scale-105.duration-300(style="background-color: var(--surface); border-color: var(--banner);")
+                                //- Barra decorativa superior (Gradiente con tus colores)
+                                div.absolute.top-0.left-0.w-full.h-1(style="background: linear-gradient(to right, var(--primary), var(--secondary));")
+                                
+                                div.flex.justify-between.items-start
+                                    h3.font-bold.text-lg.mb-2.leading-tight(style="color: var(--dark);")= taller.nombre
+                                
+                                p.text-xs.mb-4.leading-relaxed.h-10.overflow-hidden(style="color: var(--text); opacity: 0.8;")= taller.descripcion
+
+                                div.space-y-2.pt-4(style="border-top: 1px solid var(--banner);")
+                                    //- Fecha y Hora
+                                    div.flex.items-center.text-sm(style="color: var(--text);")
+                                        i.far.fa-calendar-alt.w-6.text-center(style="color: var(--accent);")
+                                        - const fecha = new Date(taller.fecha_hora)
+                                        span.capitalize= fecha.toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long'}) + ' ' + fecha.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'}) + ' hrs'
+                                    
+                                    //- Tallerista (si existe)
+                                    if taller.tallerista_nombre
+                                        div.flex.items-center.text-sm(style="color: var(--text);")
+                                            i.fas.fa-user-tie.w-6.text-center(style="color: var(--primary);")
+                                            span= taller.tallerista_nombre
+                                    
+                                    //- Duración
+                                    div.flex.items-center.text-sm(style="color: var(--text);")
+                                        i.far.fa-clock.w-6.text-center(style="color: var(--secondary);")
+                                        span Duración: #{taller.duracion} hrs
+
+                else
+                    //- Estado vacío
+                    div.rounded-xl.p-10.text-center.border.border-dashed(style="background-color: #f5f5f5; border-color: var(--primary);")
+                        i.fas.fa-chalkboard.text-4xl.mb-3(style="color: var(--primary); opacity: 0.5;")
+                        p(style="color: var(--text);") No tiene talleres inscritos por el momento.
+    br
+    .grid.grid-cols-2.gap-4
+        div.mt-14
+            button(
+            onclick="resetUser("+usuario.id+")" 
+            type="button" 
+            class="w-full bg-gray-300 text-black font-bold py-4 px-4 rounded-xl shadow-lg transition-transform duration-200 transform hover:scale-4 flex justify-center items-center gap-2"
+            ) Reiniciar registro
+        div.mt-14
+            button#btn-validar(
+                type="button"
+                data-user-id=usuario.id
+                class="w-full bg-green text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-transform duration-200 transform hover:scale-4 flex justify-center items-center gap-2"
+            )
+                | Validar usuario
+    br
+    br
+    
+
+
+    script(src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+    script.
+        GLightbox({
+            touchNavigation: true,
+            loop: true
+        });
+        const folder = "#{folder}";
+        const btnValidar = document.getElementById('btn-validar');
+        const csrfToken = document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content');
+
+        async function resetUser(id){
+            Swal.fire({
+                title: '¿Reiniciar registro?',
+                text: 'Esta acción eliminará toda la información del usuario y le permitirá registrarse nuevamente. Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#afafaf',
+                cancelButtonColor: '#0E7490',
+                confirmButtonText: 'Sí, reiniciar',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Confirmación requerida...',
+                        text: 'ESTA ACCIÓN NO SE PUEDE DESHACER. ¿ESTÁS SEGURO DE QUE QUIERES REINICIAR EL REGISTRO DE ESTE USUARIO?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc6767',
+                        cancelButtonColor: '#dc6767',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonText: 'Sí, reiniciar',
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            const response = await fetch(`${folder}/admin/panel/usuario/${id}/reiniciar`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'CSRF-Token': csrfToken 
+                                }
+                            });
+                            const data = await response.json();
+                            await Swal.fire({
+                                title: data.title,
+                                text:  data.message,
+                                icon: data.type,
+                                confirmButtonColor: '#16a34a'
+                            });
+                            if (data.type === 'success') {
+                                location.reload(); 
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        btnValidar?.addEventListener('click', async () => {
+            const userId = btnValidar.dataset.userId;
+            console.log('Validar usuario ID:', userId);
+
+            const result = await Swal.fire({
+                title: 'Atención!',
+                text: 'Esta acción validará los documentos y pagos del usuario, asignará un folio y confirmará su acceso al congreso.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#dc2626',
+                confirmButtonText: 'Sí, validar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (!result.isConfirmed) return;
+
+            // Loader
+            Swal.fire({
+                title: 'Validando...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await fetch(`${folder}/admin/panel/usuario/${userId}/validar`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': csrfToken 
+                    }
+                });
+
+                const data = await response.json();
+                let mensajeTexto = data.mensaje + (data.folio ? '. Folio asignado: ' +data.folio: '');
+                if (response.ok) {
+                    await Swal.fire({
+                        title: '¡Validado!',
+                        text:  mensajeTexto,
+                        icon: 'success',
+                        confirmButtonColor: '#16a34a'
+                    });
+
+                    location.reload(); 
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.mensaje || 'No se pudo validar',
+                        icon: 'error'
+                    });
+                }
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: 'Error de conexión',
+                    text: 'Intenta nuevamente',
+                    icon: 'error'
+                });
+            }
+        });

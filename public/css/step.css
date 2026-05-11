@@ -1,0 +1,53 @@
+.progress-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 350px; 
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.progress-container::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e5e7eb;
+  transform: translateY(-50%);
+  z-index: 0;
+  border-radius: 2px;
+}
+
+.step {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #9ca3af;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 400;
+  z-index: 1;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.step.active {
+  background: #0d9488;
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+}
+
+.step.completed {
+  background: #0d9488;
+  color: #fff;
+}
+
+.step:hover:not(.active):not(.completed) {
+    background: #d1d5db;
+    color: #6b7280;
+}

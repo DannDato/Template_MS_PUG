@@ -1,0 +1,49 @@
+block vars
+    - var folder = folder || ''
+nav.navbar(data-aos="fade-down", data-aos-duration="800")
+  .nav-container
+    a.logo(href=`${folder}/`)
+      //- img(src=`${folder}/img/icon.png`, alt="Logo", style="height: 50px;")
+
+    .hamburger
+      span.bar
+      span.bar
+      span.bar
+
+    .nav-menu
+      .nav-links
+        //- Lógica para clase 'active'
+        a(href=`${folder}/`, class=(pagina === 'Bienvenida' ? 'active' : '')) <i class="fas fa-home"></i>
+
+
+
+script.
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Lógica del Menú Hamburguesa
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".nav-menu");
+
+    if(hamburger) {
+      hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("active");
+        navMenu.classList.toggle("active");
+      });
+
+      document.querySelectorAll(".nav-links a").forEach(link => {
+        link.addEventListener("click", () => {
+          hamburger.classList.remove("active");
+          navMenu.classList.remove("active");
+        });
+      });
+    }
+
+    // 2. Lógica del Scroll (Efecto Glassmorphism)
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+  });

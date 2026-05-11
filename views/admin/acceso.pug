@@ -1,0 +1,145 @@
+extends ../layouts/includes/index
+
+block vars
+    - var folder = folder || ''
+    - var stepActivo = "controlAcceso"
+
+block contenido
+    script(src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js")
+
+    div(data-aos="fade-up")
+
+        div.mb-6.text-center.md_text-left
+            h2.text-2xl.font-bold.mb-2(style="color: var(--text); font-family: 'Montserrat', sans-serif;") 
+                i.fas.fa-id-card-alt.mr-2
+                | Control de Acceso
+            p.text-gray-500 Escanea el código de barras o ingresa el folio manualmente para validar el ingreso.
+        
+        div(class="w-full mx-auto" style="max-width: 900px;")
+            div.grid.grid-cols-1.lg_grid-cols-2.gap-8
+    
+                div.bg-white.rounded-2xl.shadow-lg.overflow-hidden.border.border-gray-100.h-fit
+                    div.p-6
+                        div.flex.justify-between.items-center.mb-2
+                            label.block.text-gray-700.text-sm.font-bold(for="buscador")
+                                | Ingresar Folio
+                            a.inline-flex.items-center.justify-center.w-8.h-8.rounded-lg.bg-gray-100.text-gray-500.transition.hover_bg-blue-100.hover_text-blue-600(
+                                href=`${folder}/admin/acceso` 
+                                title="Limpiar búsqueda / Recargar"
+                            )
+                                i.fas.fa-sync-alt.text-sm
+
+                        form(method="POST" action=`${folder}/admin/verificaAcceso`)
+                            input(type="hidden" name="_csrf" value=csrfToken)
+                            
+                            div.relative.w-full
+                                span.absolute.inset-y-0.left-0.flex.items-center.pl-3.text-gray-400
+                                    i.fas.fa-barcode.text-xl
+                                
+                                input#buscador.pl-10.pr-4.py-4.bg-gray-50.border.border-gray-200.rounded-xl.text-lg.w-full.focus_outline-none.focus_ring-4.focus_ring-blue-100.transition(
+                                    type="text" 
+                                    name="folio"
+                                    placeholder="Escanea aquí..." 
+                                    autofocus
+                                    autocomplete="off"
+                                    onblur="this.focus()" 
+                                )
+                        
+                        p.text-xs.text-gray-400.mt-2.text-center
+                            | Presiona Enter para buscar si escribes manualmente.
+                            br
+                            | El cursor regresará aquí automáticamente.
+
+                div
+                    if usuario && encontrado===true
+
+                        - var esValido = usuario.congreso_validado === 'Si'
+                        - var colorBg = esValido ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'
+                        - var colorIcon = esValido ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                        - var iconClass = esValido ? 'fa-check' : 'fa-times'
+                        - var tituloEstado = esValido ? 'ACCESO AUTORIZADO' : 'ACCESO DENEGADO'
+                        - var textoEstado = esValido ? 'Registro validado correctamente.' : 'El usuario NO tiene validado el pago del congreso.'
+                        - var textoKit = primeraVez ? '¡Entrega el kit al usuario!' : 'Kit entregado'
+                        
+                        div#resultado-card.rounded-2xl.shadow-lg.border-2.flex.items-center.justify-center.p-8.transition-colors.duration-300(class=colorBg style="min-height: 350px;")
+                            div.text-center.w-full(data-aos="zoom-in")
+                                
+                                //- Icono Gigante
+                                div.w-24.h-24.rounded-full.flex.items-center.justify-center.mx-auto.mb-4.shadow-sm(class=colorIcon)
+                                    i.fas.text-5xl(class=iconClass)
+                                
+                                //- Titulo Estado
+                                h2.text-3xl.font-bold.mb-1.tracking-wide(class=esValido ? 'text-green-700' : 'text-red-700')
+                                    | #{tituloEstado}
+                                
+                                //- p.text-gray-600.mb-6.font-medium.text-2xl #{textoKit}
+                                
+                                //- Datos del Usuario
+                                div.bg-white.rounded-xl.p-5.shadow-sm.border.border-gray-100.text-left.w-full
+                                    //- Fila 1
+                                    div.grid.grid-cols-2.gap-4.mb-4
+                                        div.mb-4.border-b.border-gray-100.pb-2
+                                            span.text-xs.text-gray-400.uppercase.font-bold.tracking-wider Participante
+                                            p.text-xl.font-bold.text-gray-800.leading-tight #{usuario.nombre}
+                                            p.text-sm.text-gray-500 #{usuario.email}
+                                        div.mb-4.border-b.border-gray-100
+                                            br
+                                            if primeraVez
+                                                div.bg-emerald-200.rounded.p-3
+                                                    p.text-md.font-bold.text-gray-800.leading-tight.text-center #{textoKit}
+                                            else
+                                                div.bg-gray-100.rounded.p-3
+                                                    p.text-md.font-bold.text-gray-800.leading-tight.text-center #{textoKit}
+
+                                    //- Fila 2
+                                    div.grid.grid-cols-2.gap-4.mb-4
+                                        div
+                                            span.text-xs.text-gray-400.uppercase.font-bold.tracking-wider Folio
+                                            p.text-sm.font-mono.text-gray-700.font-bold #{usuario.folio}
+                                        div
+                                            span.text-xs.text-gray-400.uppercase.font-bold.tracking-wider Perfil
+                                            p.text-sm.text-gray-700.font-bold.truncate #{usuario.ocupacion}
+
+                                    //- Fila 3
+                                    div.grid.grid-cols-2.gap-4
+                                        div
+                                            span.text-xs.text-gray-400.uppercase.font-bold.tracking-wider Procedencia
+                                            p.text-sm.txt-blue.font-bold.truncate #{usuario.universidad}
+                                        div
+                                            span.text-xs.text-gray-400.uppercase.font-bold.tracking-wider Total Validado
+                                            p.text-sm.font-bold(class=esValido ? 'text-green-600' : 'text-red-600') $ #{usuario.total_validado}
+
+                    else if encontrado === false 
+                        div#resultado-card.bg-red-50.rounded-2xl.shadow-lg.border-2.border-red-200.flex.items-center.justify-center.p-8(style="min-height: 350px;")
+                            div.text-center.animate__animated.animate__shakeX
+                                //- Círculo del icono
+                                div.w-24.h-24.bg-red-100.rounded-full.flex.items-center.justify-center.mx-auto.mb-5.text-red-500.shadow-sm
+                                    i.fas.fa-exclamation-triangle.text-4xl
+                                
+                                //- Textos
+                                h3.text-2xl.font-bold.text-red-700.mb-2 ¡Folio no encontrado!
+                                p.text-lg.text-red-600.font-medium.mb-1 Ese folio no existe...
+                                p.text-sm.text-red-400 Escanea un código válido para ver la información.
+                    else
+                        div#resultado-card.bg-gray-50.rounded-2xl.shadow-inner.border-2.border-dashed.border-gray-300.flex.items-center.justify-center.p-8(style="min-height: 350px;")
+                            div.text-center
+                                div.w-20.h-20.bg-gray-200.rounded-full.flex.items-center.justify-center.mx-auto.mb-4.text-gray-400
+                                    i.fas.fa-search.text-3xl
+                                h3.text-xl.font-bold.text-gray-400 Esperando lectura...
+                                p.text-gray-400 Escanea un código para ver la información.
+
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js")
+    
+    script.
+        AOS.init();
+        const inputBuscador = document.getElementById('buscador');
+        document.addEventListener('click', function(e) {
+             if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+                 inputBuscador.focus();
+             }
+        });
+        
+        window.onload = function() {
+            inputBuscador.focus();
+        };

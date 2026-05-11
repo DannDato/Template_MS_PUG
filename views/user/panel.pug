@@ -1,0 +1,49 @@
+extends ../layouts/includes/index
+
+block vars
+    - var folder = folder || ''
+
+block styles
+    link(rel="stylesheet", href="/css/step.css")
+
+block contenido
+    div.flex.justify-center
+        div
+            .flex.justify-center.items-center
+            .progress-container.flex.gap-4
+                .step(step === 'Inicio' ? 'active' : '') 1
+                .step(data-step="info") 2
+                .step(data-step="talleres") 3
+                .step(data-step="referencia") 4
+
+    #step-content.mt-10
+
+    script.
+        const loadStep = async (stepname) => {
+            try {
+                const res = await fetch(`/user/${stepname}`);
+                const html = await res.text();
+                document.getElementById('step-content').innerHTML = html;
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        document.querySelectorAll('.step').forEach(step => {
+            step.addEventListener('click', async () => {
+                const stepname = step.dataset.step;
+                // activar step
+                document.querySelectorAll('.step')
+                .forEach(s => s.classList.remove('active'));
+                step.classList.add('active');
+
+                try {
+                    const res = await fetch(`${folder}/user/${stepname}`);
+                    const html = await res.text();
+                    document.getElementById('step-content').innerHTML = html;
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        });
+
+        loadStep('aviso');

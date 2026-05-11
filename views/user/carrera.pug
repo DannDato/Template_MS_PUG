@@ -1,0 +1,97 @@
+extends ../layouts/includes/index
+
+block vars
+    - var stepActivo = 'carrera'
+    - var avisoFirmado = avisoFirmado || true;
+    - var folder = folder || ''
+
+block contenido
+    div(class="items-center justify-center bg-gray-50 px-4" style="min-height: 60vh;")
+        if pagado==='Si'
+            div.text-center.pt-5
+                h1(style="font-family: 'Montserrat', sans-serif; color: var(--text); font-weight: 800; font-size: 2rem;") Inscripción a la carrera
+                p.mt-2(style="font-family: 'Merriweather', serif; color: #64748b; font-size: 1rem;") 
+                    | Hemos habilitado este quinto paso para saber si te gustaría participar en la carrera.
+                br
+            if verify > 150
+                div.mt-8.mx-auto(style="max-width: 750px;")
+                    div.bg-red-100.text-red-700.px-4.py-3.rounded-lg.shadow-md.mb-4(role="alert")
+                        strong.font-bold Lo sentimos! ya se llenó el cupo de corredores.
+                        br
+                        br
+                        span.block Por el momento no podemos aceptar más participantes en la carrera, pero te invitamos a seguir revisando, quizas alguien cambia su decisión y podrías tomar su lugar. Además, te invitamos a disfrutar de los demás eventos y actividades que tenemos preparados para ti. 
+                        br
+                        | ¡Gracias por tu comprensión!
+            else
+                div.mt-8.mx-auto(style="max-width: 750px;")
+                    form(action=`${folder}/user/carrera` method="POST")
+                        input(type="hidden" name="_csrf" value=csrfToken)
+                        div.border.border-gray-200.rounded-xl.p-5.bg-white.shadow-sm.relative.overflow-hidden
+                            div.absolute.top-0.left-0.w-1.h-full.bg-gray-400
+                            
+                            div.flex.flex-col.gap-4
+                                div.flex.items-start.gap-4.items-center
+                                    div.bg-gray-100.p-3.rounded-full.flex-shrink-0.mt-1
+                                        i.fas.fa-running.text-green.text-lg
+                                    div.text-left
+                                        h4 Para confirmar, marca la casilla y pulsa enviar.
+                                
+                                hr.border-gray-100
+
+                                div.flex.items-center.justify-between.w-full
+            
+                                div.flex.flex-col.md_flex-row.gap-4.md_gap-8
+                                    
+                                    label(class="inline-flex items-center gap-2 cursor-pointer group")
+                                        input(
+                                            type="radio" 
+                                            name="check_carrera" 
+                                            value="Si" 
+                                            class="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 cursor-pointer"
+                                            checked=(corre.corre === 'Si')
+                                        )
+                                        span(class="font-bold text-gray-700 group-hover:text-green-700 transition-colors") Sí, deseo participar
+
+                                    label(class="inline-flex items-center gap-2 cursor-pointer group")
+                                        input(
+                                            type="radio" 
+                                            name="check_carrera" 
+                                            value="No" 
+                                            class="w-5 h-5 text-red-500 border-gray-300 focus:ring-red-500 cursor-pointer"
+                                            checked=(corre.corre !== 'Si')
+                                        )
+                                        span(class="font-bold text-gray-700 group-hover:text-red-500 transition-colors") No deseo participar
+
+                                button(type="submit" class="bg-green text-white px-6 py-2 rounded-lg font-bold shadow transition flex items-center gap-2")
+                                    span Enviar respuesta
+                                    i.fas.fa-paper-plane.text-xs
+                        div.mt-8.mx-auto(style="max-width: 750px;")
+                            img(src=`${folder}/img/carreraAmmfen.jpeg` alt="Carrera AMMFEN" class="rounded-lg shadow-md" data-aos="fade-up" data-aos-duration="1000")
+        else
+            div.mt-8.mx-auto(style="max-width: 750px;")
+                div.bg-white.p-8.rounded-lg.shadow-lg.border-t-4.border-yellow-500.text-center
+                    div.text-yellow-500.text-5xl.mb-4
+                        i.fas.fa-clock
+                    h2.text-xl.font-bold.text-gray-800.mb-2 Espera un momento...
+                    p.text-gray-800.mb-6 Primero deben validar tu acceso al congreso para habilitar esta sección.
+                                                        
+            
+    script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
+    script.
+        AOS.init();
+        const pagado = "#{pagado}";
+        const corre = !{JSON.stringify(corre)};
+        console.log("que trae ",pagado);
+        
+        console.log("que trae error ",error);
+        if(corre){
+            let mensaje=''
+            if(corre.corre=='Si'){
+                mensaje='¡Genial! Hemos registrado que deseas participar en la carrera.'
+                title='¡Excelente!'
+            }
+            else{
+                mensaje='Hemos registrado que No deseas participar en la carrera.'
+                title='¡Entendido!'
+            }
+        }
