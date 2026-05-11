@@ -33,8 +33,6 @@ node_modules/
 # Environment and secrets
 # ---------------------------------------------
 .env
-.env.*
-!.env.example
 
 # ---------------------------------------------
 # Build output
