@@ -7,13 +7,22 @@ const router = express.Router();
 router.get('/login', authController.formularioLogin);
 router.post('/login',
     passport.authenticate('local.login', {
-        failureRedirect: '/auth/login',
+        failureRedirect: `${process.env.FOLDER}/auth/login?error=true`,
         failureFlash: true,
-        failureMessage: true
+        failureMessage: true,
     }),
-    authController.autenticar
+    (req, res) => {
+        console.log('Autenticación exitosa, redirigiendo a home...');
+        authController.autenticar(req, res);
+    }
 );
+router.get('/olvide-password', (req, res) => {
+    res.render('auth/olvide-password', {
+        pagina: 'Recuperar Contraseña',
+        csrfToken: req.csrfToken()
+    });
+});
 
-router.get('/logout', authController.cerrarSesion);
+router.get('/cerrar-sesion', authController.cerrarSesion);
 
 export default router

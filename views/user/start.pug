@@ -1,0 +1,22 @@
+extends ../layouts/includes/index
+block vars
+    - var stepActivo = 'info';
+    - var avisoFirmado = avisoFirmado || null;
+    - var folder = folder || ''
+    - var extraId = infoExtra ? infoExtra.id : null
+block contenido
+    link(rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css")
+    //- Encabezado
+    section.w-full.mx-auto.my-10.px-6.py-8h-full
+        .banner-motion(aria-hidden="true").h-full.z-1
+            span.orb.orb-a
+            span.orb.orb-b
+            span.orb.orb-c
+            .banner-grid
+        
+        .mt-8.mx-auto(style="width: 100%;").h-full.z-20
+            div.p-2(class="md:p-10").z-100
+                div
+                    h1.font-bold.text-lg(class="text-[var(--secondary)]") Bienvenido a la Jornada Académico Pedagógica 2026
+            
+            

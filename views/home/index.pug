@@ -19,7 +19,7 @@ html(lang="es")
     include ../layouts/navbar.pug
 
     //- --- BANNER ---
-    section.banner
+    section.banner(class="w-[104%] px-[-5.5%] relative overflow-hidden")
       .banner-motion(aria-hidden="true")
         span.orb.orb-a
         span.orb.orb-b
@@ -31,17 +31,17 @@ html(lang="es")
 
         .banner-right
           .hero-box(data-aos="zoom-in-up", data-aos-duration="1000")
-            h5(data-aos="fade-up", data-aos-delay="200") El Centro Universitario de Ciencias de la Salud les ofrece la mas cordial bienvenida a
-            h1(data-aos="fade-up", data-aos-delay="300")
+            h5(data-aos="fade-up", data-aos-delay="200" class="px-20 md:px-0") El Centro Universitario de Ciencias de la Salud les ofrece la mas cordial bienvenida a
+            h1(data-aos="fade-up", data-aos-delay="300" class="px-20 md:px-0")
               strong Jornada Academico Pedagogica 2026
-            h3(data-aos="fade-up", data-aos-delay="400") GUADALAJARA | 2026
+            h3(data-aos="fade-up", data-aos-delay="400" class="px-20 md:px-0") GUADALAJARA | 2026
             .separator-line(data-aos="zoom-in", data-aos-delay="600")
-            h5.text-3xl(data-aos="fade-up", data-aos-delay="700") Inteligencia artificial y nuevas estrategias para la docencia en salud
+            h5.text-3xl(data-aos="fade-up", data-aos-delay="700" class="px-20 md:px-0") Inteligencia artificial y nuevas estrategias para la docencia en salud
             .nav-buttons
               a.login(href=`${folder}/auth/login` class="px-5 py-2 text-white rounded-full shadow-lg" data-aos="fade-up", data-aos-delay="1000") Iniciar sesión
               //- a.register(href=`${folder}/auth/registro` class="px-5 py-2 text-white rounded-full shadow-lg") Registrarse
 
-    section.welcome.mx-auto.p-10.py-12(class="md:max-w-4xl lg:max-w-7xl")
+    section.welcome.mx-auto.p-2.py-12(class="w-full md:max-w-4xl lg:max-w-7xl md:p-10")
         h2.text-4xl.font-bold.text-center.my-5(data-aos="fade-up" class="lg:mt-[-100px] md:mt-0") Bienvenidas y Bienvenidos
         .separator-line.section-separator(data-aos="zoom-in", data-aos-delay="120")
         .text-card(data-aos="fade-up", data-aos-delay="200")
@@ -56,8 +56,8 @@ html(lang="es")
             | Se parte de la premisa de que la IA no es un sustituto del juicio humano, sino un aliado pedagógico que permite liberar al docente de tareas repetitivas para centrarse en
             | la formación del pensamiento crítico, la empatía clínica y la ética del cuidado.
 
-    section.bg-gray-200.objetives.mx-auto.flex.flex-col.items-center.p-10.py-12
-      div.p-10.py-12(class="md:max-w-4xl lg:max-w-7xl")
+    section.welcome.mx-auto.p-2.py-12(class="w-full md:max-w-4xl lg:max-w-7xl md:p-10").bg-white.rounded-3xl.mb-10
+      div.p-2.py-12(class="w-full md:max-w-4xl lg:max-w-7xl md:p-10")
         h2.text-4xl.font-bold.text-center.my-10(data-aos="fade-up") Objetivos
         .separator-line.section-separator(data-aos="zoom-in", data-aos-delay="120")
         .text-card(data-aos="fade-up", data-aos-delay="200")

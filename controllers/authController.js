@@ -23,28 +23,33 @@ class authController {
     
     autenticar = async (req, res) => {
         try {
-            // Si llegamos aquí, passport ya autenticó al usuario
-            // req.user contiene los datos del usuario autenticado
-            
+            if (!req.user) {
+                req.flash('error', 'No fue posible autenticar al usuario');
+                return res.redirect(`${process.env.FOLDER}/auth/login`);
+            }
+
             const usuarioId = req.user.userid || req.user.codigo;
+
+            if (!usuarioId) {
+                req.flash('error', 'No se pudo determinar el identificador del usuario');
+                return res.redirect(`${process.env.FOLDER}/auth/login`);
+            }
+
             console.log('Usuario autenticado:', usuarioId);
             
             // Guardar en sesión
             req.session.usuarioId = usuarioId;
             
-            // Generar token JWT opcional
-            generarJWT(usuarioId);
+            // Generar token JWT para uso interno (si aplica en otras rutas)
+            req.session.jwt = generarJWT(usuarioId);
             
             // Redirigir a home
-            res.redirect('/');
+            return res.redirect(`${process.env.FOLDER}/user/`);
             
         } catch (error) {
             console.error('Error en autenticación:', error.message);
-            res.render('auth/login', {
-                pagina: 'Iniciar Sesión',
-                csrfToken: req.csrfToken(),
-                errores: [{ msg: 'Error en el proceso de autenticación' }]
-            });
+            req.flash('error', 'Error en el proceso de autenticación');
+            return res.redirect(`${process.env.FOLDER}/auth/login`);
         }
     }
 
@@ -56,7 +61,7 @@ class authController {
 
             req.session.destroy(() => {
                 res.clearCookie('connect.sid');
-                res.redirect('/auth/login');
+                res.redirect(`${process.env.FOLDER}/auth/login`);
             });
         });
     }

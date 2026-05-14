@@ -4,6 +4,57 @@ import pool from '../config/db.js';
 import { hashPassword, matchPassword } from '../helpers/index.js';
 import ws from '../webServices/siiau.js';
 
+const isPasswordTemp = (value) => {
+    if (value === undefined || value === null) {
+        return false;
+    }
+
+    const normalized = String(value).trim().toLowerCase();
+    return normalized === '1' || normalized === 'true' || normalized === 'si' || normalized === 'yes';
+};
+
+const normalizeAuthUser = (user = {}) => ({
+    userid: user.userid || user.codigo || '',
+    codigo: user.codigo || user.userid || '',
+    nombre: user.nombre || '',
+    tipo_usuario: user.tipo_usuario || '',
+    password_temp: user.password_temp || 0
+});
+
+const parseWsResponse = (wsResult = {}) => {
+    if (!wsResult || typeof wsResult !== 'object') {
+        return { ok: false, message: 'Respuesta inválida del servicio de autenticación' };
+    }
+
+    if (wsResult.error) {
+        return { ok: false, message: wsResult.error };
+    }
+
+    if (Object.prototype.hasOwnProperty.call(wsResult, 'respuesta')) {
+        if (wsResult.respuesta === true || wsResult.respuesta === 'true' || wsResult.respuesta === 1 || wsResult.respuesta === '1') {
+            return {
+                ok: true,
+                message: 'Usuario validado por SIIAU',
+                nombre: wsResult.nombre || '',
+                tipo_usuario: wsResult?.datos?.[0]?.tipoUsuario || ''
+            };
+        }
+
+        return { ok: false, message: 'La contraseña es incorrecta' };
+    }
+
+    if (wsResult.nombre) {
+        return {
+            ok: true,
+            message: 'Usuario validado por SIIAU',
+            nombre: wsResult.nombre,
+            tipo_usuario: wsResult?.datos?.[0]?.tipoUsuario || ''
+        };
+    }
+
+    return { ok: false, message: 'No fue posible validar el usuario en SIIAU' };
+};
+
 passport.use(
     "local.login",
     new LocalStrategy.Strategy(
@@ -14,106 +65,94 @@ passport.use(
         },
         async (req, codigo, password, done) => {
             try {
-                let login_error = false;
-                let login_message = '';
-                let user = [];
+                const cleanCodigo = (codigo || '').trim();
+                const cleanPassword = (password || '').trim();
+
+                let user = null;
                 let databaseAvailable = true;
 
-                if (!codigo) {
+                if (!cleanCodigo) {
                     return done(null, false, { message: 'El código es obligatorio' });
+                }
+
+                if (!cleanPassword) {
+                    return done(null, false, { message: 'La contraseña es obligatoria' });
                 }
 
                 // Busca usuario en base de datos
                 try {
-                    user = await pool.query(
-                        `SELECT a.codigo AS userid, a.nombre, a.password, a.email
-                         FROM Usuario a
-                         WHERE a.codigo = ?`,
-                        [codigo]
+                    const users = await pool.query(
+                        `SELECT a.userid, a.password, a.password_temp
+                         FROM clav_siia a
+                         WHERE a.userid = ?`,
+                        [cleanCodigo]
                     );
+
+                    user = users[0] || null;
                 } catch (dbError) {
                     databaseAvailable = false;
                     console.error('BD no disponible, se intentara autenticacion via SIIAU:', dbError.message);
                 }
 
-                console.log('Usuario encontrado:', user.length > 0 ? user[0].userid : 'No');
+                console.log('Usuario encontrado:', user?.userid || 'No');
 
                 // Si existe y tiene contraseña almacenada, verifica
-                if (user.length > 0 && user[0].password) {
-                    const storedPassword = user[0].password;
+                if (user && user.password && !isPasswordTemp(user.password_temp)) {
+                    const storedPassword = user.password;
                     const looksHashed = storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2y$');
 
                     let localPasswordOk = false;
                     if (looksHashed) {
-                        localPasswordOk = await matchPassword(password, storedPassword);
+                        localPasswordOk = await matchPassword(cleanPassword, storedPassword);
                     } else {
                         // Soporte temporal para contraseñas legadas en texto plano
-                        localPasswordOk = password === storedPassword;
+                        localPasswordOk = cleanPassword === storedPassword;
                     }
 
                     if (localPasswordOk) {
-                        return done(null, user[0]);
+                        return done(null, normalizeAuthUser(user));
                     }
                 }
 
                 // Si no existe o contraseña no coincide, verifica en webservice SIIAU
                 console.log('Validando en webservice SIIAU...');
-                let wsResult = await ws.postData('validaUsuario', { codigo: codigo, nip: password });
+                const wsResult = await ws.postData('validaUsuario', { codigo: cleanCodigo, nip: cleanPassword });
+                const wsValidation = parseWsResponse(wsResult);
 
-                if (wsResult.error !== undefined) {
-                    login_error = true;
-                    login_message = wsResult.error;
-                } else if (wsResult.respuesta !== undefined) {
-                    login_error = true;
-                    login_message = 'La contraseña es incorrecta';
+                if (!wsValidation.ok) {
+                    console.log(cleanCodigo + ' -> ' + wsValidation.message);
+                    return done(null, false, { message: wsValidation.message || 'Credenciales inválidas' });
                 }
 
-                if (!login_error && wsResult.nombre) {
-                    // Usuario validado por webservice
+                if (databaseAvailable) {
+                    try {
+                        const hashedPassword = await hashPassword(cleanPassword);
 
-                    const webserviceUser = {
-                        userid: codigo,
-                        nombre: wsResult.nombre || '',
-                        email: wsResult.email || ''
-                    };
-
-                    if (user.length > 0) {
-                        // Actualiza contraseña en BD
-                        if (databaseAvailable) {
-                            try {
-                                const hashedPassword = await hashPassword(password);
-                                await pool.query(
-                                    'UPDATE Usuario SET password = ? WHERE codigo = ?',
-                                    [hashedPassword, codigo]
-                                );
-                                console.log('Contraseña actualizada para usuario:', codigo);
-                            } catch (err) {
-                                console.error('Error al actualizar contraseña:', err.message);
-                            }
+                        if (user) {
+                            await pool.query(
+                                'UPDATE clav_siia SET password = ?, password_temp = 0 WHERE userid = ?',
+                                [hashedPassword, cleanCodigo]
+                            );
+                            console.log('Contraseña actualizada para usuario:', cleanCodigo);
+                        } else {
+                            await pool.query(
+                                'INSERT INTO clav_siia (userid, password, password_temp) VALUES (?, ?, 0)',
+                                [cleanCodigo, hashedPassword]
+                            );
+                            console.log('Nuevo usuario creado en clav_siia:', cleanCodigo);
                         }
-                        return done(null, user[0]);
-                    } else {
-                        // Crea nuevo usuario
-                        if (databaseAvailable) {
-                            const hashedPassword = await hashPassword(password);
-                            try {
-                                await pool.query(
-                                    'INSERT INTO Usuario (codigo, nombre, email, password) VALUES (?, ?, ?, ?)',
-                                    [codigo, wsResult.nombre || '', wsResult.email || '', hashedPassword]
-                                );
-                                console.log('Nuevo usuario creado:', codigo);
-                            } catch (err) {
-                                console.error('Error al crear usuario:', err.message);
-                            }
-                        }
-
-                        // Si no hay BD, aun asi permite login al validarse en SIIAU
-                        return done(null, webserviceUser);
+                    } catch (err) {
+                        console.error('Error al sincronizar contraseña local:', err.message);
                     }
-                } else {
-                    console.log(codigo + ' -> ' + (login_message || 'Error de autenticación'));
-                    return done(null, false, { message: login_message || 'Credenciales inválidas' });
                 }
+
+                return done(null, normalizeAuthUser({
+                    userid: cleanCodigo,
+                    codigo: cleanCodigo,
+                    nombre: wsValidation.nombre || user?.nombre || '',
+                    tipo_usuario: wsValidation.tipo_usuario || user?.tipo_usuario || '',
+                    password_temp: 0
+                }));
 
             } catch (error) {
                 console.error('Error en autenticación:', error.message);
@@ -129,10 +168,18 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (userid, done) => {
     try {
-        const user = await pool.query("SELECT * FROM Usuario WHERE codigo = ?", [userid]);
-        done(null, user[0] || null);
+        const user = await pool.query(
+            'SELECT userid, userid AS codigo, password_temp FROM clav_siia WHERE userid = ?',
+            [userid]
+        );
+
+        if (!user || user.length === 0) {
+            return done(null, { userid, codigo: userid });
+        }
+
+        done(null, normalizeAuthUser(user[0]));
     } catch (error) {
         console.error('Error en deserializeUser, se usa fallback mínimo:', error.message);
-        done(null, { userid });
+        done(null, { userid, codigo: userid });
     }
 });

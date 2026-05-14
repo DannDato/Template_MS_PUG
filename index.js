@@ -7,6 +7,7 @@ import passport from 'passport'
 import 'dotenv/config'
 import homeRoutes from './routes/homeRoutes.js'
 import authRoutes from './routes/authRoutes.js'
+import userRoutes from './routes/userRoutes.js'
 import pool from './config/db.js'
 import './middleware/passport.js'
 // Crear la app
@@ -71,17 +72,18 @@ app.set('views', './views')
 
 app.use( express.static('public'))
 
-// Reuting
+// Routing
 app.use(`/auth`, authRoutes)
 app.use(`/`, homeRoutes)
+app.use(`/user`, userRoutes)
 // Definir un puesto y arranca el proyecto
-if (process.env.NODE_ENV === 'production') {
-    import("./cron/scheduler.js")
-        .then(module => {
-            console.log("Scheduler iniciado en producción");
-        })
-        .catch(err => console.error(err));
-}
+// if (process.env.NODE_ENV === 'production') {
+//     import("./cron/scheduler.js")
+//         .then(module => {
+//             console.log("Scheduler iniciado en producción");
+//         })
+//         .catch(err => console.error(err));
+// }
 
 console.log("Servidor iniciado...");
 const port = process.env.PORT || 3400;

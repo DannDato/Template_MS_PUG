@@ -1,5 +1,7 @@
 block vars
     - var folder = folder || ''
+    - var error = error || false
+    - var errorMessage = errorMessage || ''
 html(lang="es")
   head
     meta(charset="UTF-8")
@@ -25,36 +27,24 @@ html(lang="es")
       /* Asegura que el navbar siempre esté arriba */
       .navbar { z-index: 50; }
 
-  body.bg-gray-50
+  body.bg-gray-100
     //- --- INCLUDE NAVBAR ---
     include ../layouts/navbar.pug
 
 
 
     //- --- CONTENIDO LOGIN ---
-    section.banner.login-banner
-      .banner-motion(aria-hidden="true")
-        span.orb.orb-a
-        span.orb.orb-b
-        span.orb.orb-c
-        .banner-grid
-
-      div(data-aos="fade-up" style="z-index: 20;").container.mx-auto.px-4.py-12
-
-        h1.text-4xl.my-10.font-extrabold.text-center.min-w-2xl Iniciar sesión
-        //- h2.text-center.text-2xl.font-extrabold= pagina
-
-        //- Bloque de Errores (Opcional, pero recomendado visualizar errores generales)
-        if errores
-            div(class="login-form-container mx-auto my-4")
-                each error in errores
-                    //- Solo mostramos errores que NO sean de campos específicos (si quieres)
-                    if !error.path
-                        p.bg-red-600.text-white.uppercase.text-xs.text-center.p-2.mb-1.font-bold= error.msg
-
-        .mt-8.mx-auto.login-form-container
-            .bg-white.py-8.px-10.shadow-lg.rounded-lg(style="width: 100%;")
-                form.space-y-5(method="POST" action=`${folder}/auth/login` novalidate)
+    section.w-full.mx-auto.my-10.px-6.py-8.bg-gray-100.rounded-lg.h-auto
+        .banner-motion(aria-hidden="true")
+            span.orb.orb-a
+            span.orb.orb-b
+            span.orb.orb-c
+            .banner-grid
+        h2.text-2xl.font-bold.mb-6.text-center Iniciar Sesión
+        
+        .mt-8.mx-auto.bg-white.py-8.px-10.shadow-lg.rounded-3xl.max-w-5xl(style="width: 100%;")
+            .grid.grid-cols-1.gap-5(class="md:grid-cols-2")
+                form.space-y-5(method="POST" action=`${folder}/auth/login` novalidate).w-full
                     input(type="hidden" name="_csrf" value=csrfToken)
 
                     //- CAMPO CODIGO
@@ -65,9 +55,7 @@ html(lang="es")
 
                         input#codigo.w-full.px-3.py-3.border.rounded-md.placeholder-gray-400(
                             placeholder="Tu codigo de UdG (números)"
-                            type="number"
                             name="codigo"
-                            inputmode="numeric"
                             class= errorCodigo ? 'border-red-500' : 'border-gray-300'
                         )
                         if errorCodigo
@@ -88,11 +76,16 @@ html(lang="es")
                         if errorPass
                             p.text-red-500.text-xs.mt-1.font-bold= errorPass.msg
 
+                    if error
+                        p.text-red-500.text-sm.mb-4 #{errorMessage}
+                    p.text-white.text-sm.font-bold.p-2.bg-red-500.mb-4.hidden(id="errorUrlMessage") Codigo o contraseña incorrectos. Por favor, verifica tus credenciales e intenta nuevamente.
                     div.flex.items-center.justify-between
                         //- a.text-gray-600.text-xs.hover_text-indigo-500(href=`${folder}/auth/registro`) ¿No tienes cuenta? Crear una
                         a.text-gray-600.text-xs.hover_text-indigo-500(href=`${folder}/auth/olvide-password`) Olvide mi contraseña
 
                     input(class="w-full text-white font-bold py-3 cursor-pointer rounded-md transition-colors login bg-green" type="submit" value="Iniciar Sesión")
+                .flex.justify-center.mx-auto
+                    img(src=`${folder}/img/icon.png`, alt="Login Image", style="width: 350px; height: auto;")
 
     //- INCLUDE NAVBAR
     include ../layouts/footer.pug
@@ -101,3 +94,14 @@ html(lang="es")
     script(src="https://unpkg.com/aos@2.3.1/dist/aos.js")
     script.
         AOS.init();
+         const parametros = new URLSearchParams(window.location.search);
+  
+        // Cachamos variables específicas
+        const error = parametros.get('error');       // "true"
+
+        if(error === 'true') {
+            // Aquí puedes mostrar un mensaje de error personalizado o realizar alguna acción
+            //- alert('Error al iniciar sesión. Por favor, verifica tus credenciales e intenta nuevamente.');
+            document.getElementById('errorUrlMessage').classList.remove('hidden');
+            document.getElementById('errorUrlMessage').classList.add('block');
+        }
